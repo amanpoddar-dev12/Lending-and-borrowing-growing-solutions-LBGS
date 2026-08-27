@@ -50,8 +50,8 @@ export function PayslipDocument({ slip }: { slip: any }) {
           <p className="font-medium">{slip.employee?.name ?? "—"}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground">Employee ID</p>
-          <p className="break-all font-mono text-xs">{slip.employee_id}</p>
+          <p className="text-xs text-muted-foreground">Contact</p>
+          <p className="text-xs">{slip.employee?.email ?? slip.employee?.phone ?? "—"}</p>
         </div>
       </div>
 

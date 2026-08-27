@@ -5,8 +5,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { listEmployees } from "@/lib/employees.functions";
 import {
-  listPayslips, savePayslip, deletePayslip, computeTotals,
-  EARNING_KEYS, DEDUCTION_KEYS,
+  listPayslips, savePayslip, deletePayslip, computeTotals, EARNING_KEYS,
 } from "@/lib/payslips.functions";
 import { PayslipDocument, FIELD_LABELS, MONTHS, periodLabel } from "@/components/payslip-document";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin/payslips")({
   component: AdminPayslips,
 });
 
-const ALL_KEYS = [...EARNING_KEYS, ...DEDUCTION_KEYS] as const;
+const ALL_KEYS = EARNING_KEYS;
 const emptyForm = () =>
   Object.fromEntries(ALL_KEYS.map((k) => [k, ""])) as Record<(typeof ALL_KEYS)[number], string>;
 
@@ -97,8 +96,7 @@ function AdminPayslips() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!employeeId) return toast.error("Select an employee");
-    if (totals.gross <= 0) return toast.error("Enter at least one earning component");
-    if (totals.net < 0) return toast.error("Deductions cannot exceed total earnings");
+    if (totals.gross <= 0) return toast.error("Enter basic pay or allowance");
     save.mutate();
   }
 
@@ -146,27 +144,14 @@ function AdminPayslips() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Earnings</p>
-                {EARNING_KEYS.map((k) => (
-                  <div key={k} className="space-y-1">
-                    <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
-                    <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
-                      onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Deductions</p>
-                {DEDUCTION_KEYS.map((k) => (
-                  <div key={k} className="space-y-1">
-                    <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
-                    <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
-                      onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
-                  </div>
-                ))}
-              </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {EARNING_KEYS.map((k) => (
+                <div key={k} className="space-y-1">
+                  <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
+                  <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
+                    onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
+                </div>
+              ))}
             </div>
 
             <div className="space-y-1">
@@ -174,10 +159,9 @@ function AdminPayslips() {
               <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
             </div>
 
-            <div className="grid gap-2 rounded-md bg-muted p-3 text-sm sm:grid-cols-3">
-              <div className="flex justify-between sm:block"><span className="text-muted-foreground">Gross earnings</span><p className="font-medium">{inr(totals.gross)}</p></div>
-              <div className="flex justify-between sm:block"><span className="text-muted-foreground">Total deductions</span><p className="font-medium">{inr(totals.deductions)}</p></div>
-              <div className="flex justify-between sm:block"><span className="text-muted-foreground">Net salary</span><p className="font-semibold">{inr(totals.net)}</p></div>
+            <div className="flex items-center justify-between rounded-md bg-muted p-3 text-sm">
+              <span className="text-muted-foreground">Total pay (basic pay + allowance)</span>
+              <p className="font-semibold">{inr(totals.net)}</p>
             </div>
 
             <Button type="submit" disabled={save.isPending || invalid || !employeeId}>
@@ -198,9 +182,9 @@ function AdminPayslips() {
           {(payslips as any[]).map((p) => (
             <div key={p.id} className="flex flex-col gap-2 rounded-md border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="truncate font-medium">{p.employee?.name ?? p.employee_id}</p>
+                <p className="truncate font-medium">{p.employee?.name ?? p.employee?.email ?? "Employee"}</p>
                 <p className="text-xs text-muted-foreground">
-                  {periodLabel(p.period_year, p.period_month)} · Net {inr(p.net_pay)}
+                  {periodLabel(p.period_year, p.period_month)} · Total pay {inr(p.net_pay)}
                 </p>
               </div>
               <div className="flex gap-2">
