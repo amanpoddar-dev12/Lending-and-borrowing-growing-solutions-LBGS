@@ -24,22 +24,14 @@ const componentsSchema = z.object({
   notes: z.string().max(2000).optional().nullable(),
 });
 
-export const EARNING_KEYS = [
-  "basic_pay",
-  "hra",
-  "allowances",
-  "bonus",
-  "commission",
-  "other_earnings",
-] as const;
+/**
+ * The payslip was simplified to basic pay + allowance only. The remaining
+ * salary columns stay in the database (historical records) but are no longer
+ * captured or displayed anywhere.
+ */
+export const EARNING_KEYS = ["basic_pay", "allowances"] as const;
 
-export const DEDUCTION_KEYS = [
-  "pf",
-  "professional_tax",
-  "tds",
-  "advance_deduction",
-  "other_deductions",
-] as const;
+export const DEDUCTION_KEYS: readonly string[] = [];
 
 export function computeTotals(v: Record<string, number | null | undefined>) {
   const gross = EARNING_KEYS.reduce((s, k) => s + Number(v[k] ?? 0), 0);
