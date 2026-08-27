@@ -667,6 +667,7 @@ export type Database = {
           updated_at: string
           visit_date: string
           visit_time: string | null
+          voice_note_path: string | null
         }
         Insert: {
           cancelled_at?: string | null
@@ -687,6 +688,7 @@ export type Database = {
           updated_at?: string
           visit_date: string
           visit_time?: string | null
+          voice_note_path?: string | null
         }
         Update: {
           cancelled_at?: string | null
@@ -707,6 +709,7 @@ export type Database = {
           updated_at?: string
           visit_date?: string
           visit_time?: string | null
+          voice_note_path?: string | null
         }
         Relationships: [
           {
@@ -1731,6 +1734,10 @@ export type Database = {
       }
       set_field_visit_status: {
         Args: { p_id: string; p_note?: string; p_status: string }
+        Returns: undefined
+      }
+      set_field_visit_voice_note: {
+        Args: { p_id: string; p_path: string }
         Returns: undefined
       }
       submit_credit_limit_request: {

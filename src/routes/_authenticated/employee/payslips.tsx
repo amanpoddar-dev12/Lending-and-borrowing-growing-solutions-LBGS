@@ -47,7 +47,7 @@ function MyPayslips() {
               <div className="flex flex-col gap-2 rounded-md border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-medium">{periodLabel(p.period_year, p.period_month)}</p>
-                  <p className="text-xs text-muted-foreground">Net salary {inr(p.net_pay)}</p>
+                  <p className="text-xs text-muted-foreground">Total pay {inr(p.net_pay)}</p>
                 </div>
                 <Button size="sm" variant="outline" onClick={() => setOpenId(openId === p.id ? null : p.id)}>
                   {openId === p.id ? "Hide" : "View payslip"}

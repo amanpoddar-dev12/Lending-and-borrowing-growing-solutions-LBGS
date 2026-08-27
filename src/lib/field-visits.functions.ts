@@ -105,6 +105,36 @@ export const setFieldVisitStatus = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Attaches (or clears) the optional voice note recorded by the assigned
+ * employee. The database function re-checks that the caller owns the visit.
+ */
+export const setFieldVisitVoiceNote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ id: z.string().uuid(), path: z.string().max(300).nullable() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("set_field_visit_voice_note", {
+      p_id: data.id,
+      p_path: data.path as unknown as string,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Short-lived signed URL for playing back a visit recording. RLS on storage decides access. */
+export const getFieldVisitVoiceUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ path: z.string().min(1).max(300) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: signed, error } = await context.supabase.storage
+      .from("field-visit-audio")
+      .createSignedUrl(data.path, 60 * 30);
+    if (error) throw new Error(error.message);
+    return { url: signed?.signedUrl ?? null };
+  });
+
 /** Marks past-due visits overdue and notifies. Admin-triggered; also runs on a schedule. */
 export const refreshOverdueFieldVisits = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

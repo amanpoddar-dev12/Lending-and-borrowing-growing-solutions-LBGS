@@ -30,6 +30,7 @@ const map: Record<string, Entry[]> = {
   "/admin/audit": [{ queryKey: qk.audit(), queryFn: () => listAuditLogs({ data: { from: null, to: null } }) as any }],
   "/employee/clients": [clients],
   "/employee/orders/new": [clients, products],
+  "/admin/orders/new": [clients, products],
   "/employee/orders": [orders],
   "/employee/tasks": [{ queryKey: qk.tasks, queryFn: () => listTasks() as any }],
   "/employee/duty": [{ queryKey: qk.duty, queryFn: () => getMyDutyStatus() as any }],

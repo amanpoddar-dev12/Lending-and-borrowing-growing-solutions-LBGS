@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { listFieldVisits, setFieldVisitStatus } from "@/lib/field-visits.functions";
+import { listFieldVisits, setFieldVisitStatus, setFieldVisitVoiceNote } from "@/lib/field-visits.functions";
 import { qk } from "@/lib/query-keys";
 import { invalidateFor } from "@/lib/query-mutations";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +14,8 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { VisitPriorityBadge, VisitStatusBadge, visitTarget, visitWhen } from "@/components/field-visits/field-visit-bits";
+import { VoiceNoteRecorder, uploadVoiceNote } from "@/components/field-visits/voice-note-recorder";
+import { VoiceNotePlayer } from "@/components/field-visits/voice-note-player";
 
 export const Route = createFileRoute("/_authenticated/employee/field-visits")({
   head: () => ({
@@ -31,18 +33,35 @@ export const Route = createFileRoute("/_authenticated/employee/field-visits")({
 function MyFieldVisits() {
   const listFn = useServerFn(listFieldVisits);
   const statusFn = useServerFn(setFieldVisitStatus);
+  const voiceFn = useServerFn(setFieldVisitVoiceNote);
   const qc = useQueryClient();
   const { data = [], isLoading } = useQuery({ queryKey: qk.fieldVisits, queryFn: () => listFn() });
 
   const [closing, setClosing] = useState<{ visit: any; status: "completed" | "cancelled" } | null>(null);
   const [note, setNote] = useState("");
+  const [voice, setVoice] = useState<Blob | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const act = useMutation({
-    mutationFn: (v: { id: string; status: "completed" | "cancelled"; note?: string }) => statusFn({ data: v }),
+    mutationFn: async (v: { id: string; status: "completed" | "cancelled"; note?: string }) => {
+      // The recording is optional — upload it first so a failed upload never
+      // silently closes the visit without its voice message.
+      if (voice) {
+        setUploading(true);
+        try {
+          const path = await uploadVoiceNote(v.id, voice);
+          await voiceFn({ data: { id: v.id, path } });
+        } finally {
+          setUploading(false);
+        }
+      }
+      return statusFn({ data: v });
+    },
     onSuccess: () => {
       toast.success("Visit updated");
       setClosing(null);
       setNote("");
+      setVoice(null);
       invalidateFor(qc, "fieldVisit");
     },
     onError: (e: any) => toast.error(e?.message ?? "Could not update the visit"),
@@ -71,11 +90,12 @@ function MyFieldVisits() {
         {v.instructions && <div className="rounded-md bg-muted/50 p-2 text-xs">{v.instructions}</div>}
         {v.completion_notes && <div className="text-xs text-muted-foreground">Outcome: {v.completion_notes}</div>}
         {v.cancelled_reason && <div className="text-xs text-muted-foreground">Cancelled: {v.cancelled_reason}</div>}
+        {v.voice_note_path && <VoiceNotePlayer path={v.voice_note_path} label="Your voice message" />}
         {!closed && (
           <div className="flex gap-2 pt-1">
-            <Button size="sm" onClick={() => { setClosing({ visit: v, status: "completed" }); setNote(""); }}>Mark completed</Button>
+            <Button size="sm" onClick={() => { setClosing({ visit: v, status: "completed" }); setNote(""); setVoice(null); }}>Mark completed</Button>
             <Button size="sm" variant="ghost" className="text-destructive"
-              onClick={() => { setClosing({ visit: v, status: "cancelled" }); setNote(""); }}>Cannot visit</Button>
+              onClick={() => { setClosing({ visit: v, status: "cancelled" }); setNote(""); setVoice(null); }}>Cannot visit</Button>
           </div>
         )}
       </CardContent>
@@ -112,7 +132,7 @@ function MyFieldVisits() {
         </>
       )}
 
-      <Dialog open={!!closing} onOpenChange={(o) => { if (!o) setClosing(null); }}>
+      <Dialog open={!!closing} onOpenChange={(o) => { if (!o && !uploading) { setClosing(null); setVoice(null); } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{closing?.status === "completed" ? "Complete visit" : "Cannot complete visit"}</DialogTitle>
@@ -120,6 +140,7 @@ function MyFieldVisits() {
           </DialogHeader>
           <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)}
             placeholder={closing?.status === "completed" ? "What happened during the visit? (optional)" : "Reason (required)"} />
+          <VoiceNoteRecorder value={voice} onChange={setVoice} disabled={act.isPending} />
           <DialogFooter>
             <Button variant="outline" onClick={() => setClosing(null)}>Back</Button>
             <Button
@@ -127,7 +148,7 @@ function MyFieldVisits() {
               disabled={act.isPending || (closing?.status === "cancelled" && !note.trim())}
               onClick={() => closing && act.mutate({ id: closing.visit.id, status: closing.status, note: note || undefined })}
             >
-              {act.isPending ? "Saving…" : "Confirm"}
+              {uploading ? "Uploading audio…" : act.isPending ? "Saving…" : "Confirm"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -27,6 +27,7 @@ const navByRole: Record<Role, NavGroup[]> = {
       { key: "nav.employees", url: "/admin/employees", icon: User },
       { key: "nav.activity", url: "/admin/activity", icon: Activity },
       { key: "nav.orders", url: "/admin/orders", icon: Package },
+      { key: "nav.newOrder", url: "/admin/orders/new", icon: Package },
       { key: "nav.products", url: "/admin/products", icon: Package },
       { key: "nav.payments", url: "/admin/payments", icon: Wallet },
       { key: "nav.invoices", url: "/admin/invoices", icon: Receipt },

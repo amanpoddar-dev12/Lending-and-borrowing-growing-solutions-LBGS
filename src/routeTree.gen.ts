@@ -41,6 +41,7 @@ import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin/activity'
 import { Route as AuthenticatedEmployeeOrdersIndexRouteImport } from './routes/_authenticated/employee/orders.index'
 import { Route as AuthenticatedEmployeeOrdersNewRouteImport } from './routes/_authenticated/employee/orders.new'
+import { Route as AuthenticatedAdminOrdersNewRouteImport } from './routes/_authenticated/admin/orders.new'
 import { Route as AuthenticatedAdminLocationsEmployeeIdRouteImport } from './routes/_authenticated/admin/locations/$employeeId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -226,6 +227,12 @@ const AuthenticatedEmployeeOrdersNewRoute =
     path: '/employee/orders/new',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminOrdersNewRoute =
+  AuthenticatedAdminOrdersNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminOrdersRoute,
+  } as any)
 const AuthenticatedAdminLocationsEmployeeIdRoute =
   AuthenticatedAdminLocationsEmployeeIdRouteImport.update({
     id: '/$employeeId',
@@ -249,7 +256,7 @@ export interface FileRoutesByFullPath {
   '/admin/field-visits': typeof AuthenticatedAdminFieldVisitsRoute
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/locations': typeof AuthenticatedAdminLocationsRouteWithChildren
-  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/payslips': typeof AuthenticatedAdminPayslipsRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
@@ -264,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/employee/payslips': typeof AuthenticatedEmployeePayslipsRoute
   '/employee/tasks': typeof AuthenticatedEmployeeTasksRoute
   '/admin/locations/$employeeId': typeof AuthenticatedAdminLocationsEmployeeIdRoute
+  '/admin/orders/new': typeof AuthenticatedAdminOrdersNewRoute
   '/employee/orders/new': typeof AuthenticatedEmployeeOrdersNewRoute
   '/employee/orders/': typeof AuthenticatedEmployeeOrdersIndexRoute
 }
@@ -283,7 +291,7 @@ export interface FileRoutesByTo {
   '/admin/field-visits': typeof AuthenticatedAdminFieldVisitsRoute
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/locations': typeof AuthenticatedAdminLocationsRouteWithChildren
-  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/payslips': typeof AuthenticatedAdminPayslipsRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
@@ -298,6 +306,7 @@ export interface FileRoutesByTo {
   '/employee/payslips': typeof AuthenticatedEmployeePayslipsRoute
   '/employee/tasks': typeof AuthenticatedEmployeeTasksRoute
   '/admin/locations/$employeeId': typeof AuthenticatedAdminLocationsEmployeeIdRoute
+  '/admin/orders/new': typeof AuthenticatedAdminOrdersNewRoute
   '/employee/orders/new': typeof AuthenticatedEmployeeOrdersNewRoute
   '/employee/orders': typeof AuthenticatedEmployeeOrdersIndexRoute
 }
@@ -319,7 +328,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/field-visits': typeof AuthenticatedAdminFieldVisitsRoute
   '/_authenticated/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/_authenticated/admin/locations': typeof AuthenticatedAdminLocationsRouteWithChildren
-  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/payslips': typeof AuthenticatedAdminPayslipsRoute
   '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
@@ -334,6 +343,7 @@ export interface FileRoutesById {
   '/_authenticated/employee/payslips': typeof AuthenticatedEmployeePayslipsRoute
   '/_authenticated/employee/tasks': typeof AuthenticatedEmployeeTasksRoute
   '/_authenticated/admin/locations/$employeeId': typeof AuthenticatedAdminLocationsEmployeeIdRoute
+  '/_authenticated/admin/orders/new': typeof AuthenticatedAdminOrdersNewRoute
   '/_authenticated/employee/orders/new': typeof AuthenticatedEmployeeOrdersNewRoute
   '/_authenticated/employee/orders/': typeof AuthenticatedEmployeeOrdersIndexRoute
 }
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/employee/payslips'
     | '/employee/tasks'
     | '/admin/locations/$employeeId'
+    | '/admin/orders/new'
     | '/employee/orders/new'
     | '/employee/orders/'
   fileRoutesByTo: FileRoutesByTo
@@ -404,6 +415,7 @@ export interface FileRouteTypes {
     | '/employee/payslips'
     | '/employee/tasks'
     | '/admin/locations/$employeeId'
+    | '/admin/orders/new'
     | '/employee/orders/new'
     | '/employee/orders'
   id:
@@ -439,6 +451,7 @@ export interface FileRouteTypes {
     | '/_authenticated/employee/payslips'
     | '/_authenticated/employee/tasks'
     | '/_authenticated/admin/locations/$employeeId'
+    | '/_authenticated/admin/orders/new'
     | '/_authenticated/employee/orders/new'
     | '/_authenticated/employee/orders/'
   fileRoutesById: FileRoutesById
@@ -676,6 +689,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEmployeeOrdersNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/orders/new': {
+      id: '/_authenticated/admin/orders/new'
+      path: '/new'
+      fullPath: '/admin/orders/new'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersNewRouteImport
+      parentRoute: typeof AuthenticatedAdminOrdersRoute
+    }
     '/_authenticated/admin/locations/$employeeId': {
       id: '/_authenticated/admin/locations/$employeeId'
       path: '/$employeeId'
@@ -701,6 +721,20 @@ const AuthenticatedAdminLocationsRouteWithChildren =
     AuthenticatedAdminLocationsRouteChildren,
   )
 
+interface AuthenticatedAdminOrdersRouteChildren {
+  AuthenticatedAdminOrdersNewRoute: typeof AuthenticatedAdminOrdersNewRoute
+}
+
+const AuthenticatedAdminOrdersRouteChildren: AuthenticatedAdminOrdersRouteChildren =
+  {
+    AuthenticatedAdminOrdersNewRoute: AuthenticatedAdminOrdersNewRoute,
+  }
+
+const AuthenticatedAdminOrdersRouteWithChildren =
+  AuthenticatedAdminOrdersRoute._addFileChildren(
+    AuthenticatedAdminOrdersRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompleteProfileRoute: typeof AuthenticatedCompleteProfileRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -714,7 +748,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminFieldVisitsRoute: typeof AuthenticatedAdminFieldVisitsRoute
   AuthenticatedAdminInvoicesRoute: typeof AuthenticatedAdminInvoicesRoute
   AuthenticatedAdminLocationsRoute: typeof AuthenticatedAdminLocationsRouteWithChildren
-  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
+  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRouteWithChildren
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
   AuthenticatedAdminPayslipsRoute: typeof AuthenticatedAdminPayslipsRoute
   AuthenticatedAdminProductsRoute: typeof AuthenticatedAdminProductsRoute
@@ -746,7 +780,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminInvoicesRoute: AuthenticatedAdminInvoicesRoute,
   AuthenticatedAdminLocationsRoute:
     AuthenticatedAdminLocationsRouteWithChildren,
-  AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
+  AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRouteWithChildren,
   AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
   AuthenticatedAdminPayslipsRoute: AuthenticatedAdminPayslipsRoute,
   AuthenticatedAdminProductsRoute: AuthenticatedAdminProductsRoute,
