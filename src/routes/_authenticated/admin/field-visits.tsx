@@ -254,9 +254,10 @@ function FieldVisitsPage() {
                   <TableBody>
                     {rows.map((v) => (
                       <TableRow key={v.id}>
-                        <TableCell>
+                        <TableCell className="min-w-[220px]">
                           <div className="font-medium">{visitTarget(v)}</div>
                           {v.location && <div className="text-xs text-muted-foreground">{v.location}</div>}
+                          {v.voice_note_path && <div className="mt-2"><VoiceNotePlayer path={v.voice_note_path} /></div>}
                         </TableCell>
                         <TableCell>{v.profiles?.name ?? <span className="text-muted-foreground">Unassigned</span>}</TableCell>
                         <TableCell className="whitespace-nowrap">{visitWhen(v)}</TableCell>
