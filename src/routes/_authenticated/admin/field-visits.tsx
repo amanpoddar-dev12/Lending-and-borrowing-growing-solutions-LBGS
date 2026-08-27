@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VisitPriorityBadge, VisitStatusBadge, visitTarget, visitWhen } from "@/components/field-visits/field-visit-bits";
+import { VoiceNotePlayer } from "@/components/field-visits/voice-note-player";
 import { fmtDateTime } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/field-visits")({
@@ -43,6 +44,9 @@ export const Route = createFileRoute("/_authenticated/admin/field-visits")({
 });
 
 const NONE = "__none__";
+
+/** listEmployees returns employee_profiles rows with the profile embedded. */
+const empName = (e: any) => e?.profiles?.name ?? e?.profiles?.email ?? e?.name ?? e?.email ?? "Unnamed employee";
 
 type FormState = {
   id: string | null;
@@ -197,7 +201,7 @@ function FieldVisitsPage() {
           <SelectContent>
             <SelectItem value="all">All employees</SelectItem>
             {(employees.data ?? []).map((e: any) => (
-              <SelectItem key={e.id} value={e.id}>{e.name ?? e.email ?? e.id.slice(0, 8)}</SelectItem>
+              <SelectItem key={e.id} value={e.id}>{empName(e)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -227,6 +231,7 @@ function FieldVisitsPage() {
                       <VisitPriorityBadge priority={v.priority} />
                       <span>{v.profiles?.name ?? "Unassigned"}</span>
                     </div>
+                    {v.voice_note_path && <VoiceNotePlayer path={v.voice_note_path} />}
                     <VisitActions v={v} onEdit={openEdit} onClose={(s) => setClosing({ visit: v, status: s })}
                       onReopen={() => changeStatus.mutate({ id: v.id, status: "assigned" })} onHistory={() => setHistoryFor(v)} />
                   </div>
@@ -287,7 +292,7 @@ function FieldVisitsPage() {
                 <SelectContent>
                   <SelectItem value={NONE}>Unassigned (pending)</SelectItem>
                   {(employees.data ?? []).map((e: any) => (
-                    <SelectItem key={e.id} value={e.id}>{e.name ?? e.email ?? e.id.slice(0, 8)}</SelectItem>
+                    <SelectItem key={e.id} value={e.id}>{empName(e)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
