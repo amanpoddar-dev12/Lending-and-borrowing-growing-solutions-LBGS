@@ -24,16 +24,6 @@ export const getOrder = createServerFn({ method: "GET" })
       .select("*, clients(id, business_name, phone, email), order_items(*), profiles:employee_id(name)")
       .eq("id", data.id)
       .maybeSingle();
-    await supabase.from("audit_logs").insert({
-      actor_id: userId,
-      action: "order.created",
-      module: "orders",
-      status: "success",
-      target_type: "order",
-      target_id: order.id,
-      new_value: { order_number: order.order_number, client_id: data.client_id, employee_id, total_amount: total, created_by_role: isAdmin ? "admin" : "employee" },
-    });
-
     return order;
   });
 
@@ -99,6 +89,23 @@ export const createOrder = createServerFn({ method: "POST" })
         message: `Order ${order.order_number} pending your review`, reference_id: order.id,
       });
     }
+
+    await supabase.from("audit_logs").insert({
+      actor_id: userId,
+      action: "order.created",
+      module: "orders",
+      status: "success",
+      target_type: "order",
+      target_id: order.id,
+      new_value: {
+        order_number: order.order_number,
+        client_id: data.client_id,
+        employee_id,
+        total_amount: total,
+        created_by_role: isAdmin ? "admin" : "employee",
+      },
+    });
+
     return order;
   });
 
