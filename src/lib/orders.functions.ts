@@ -24,6 +24,16 @@ export const getOrder = createServerFn({ method: "GET" })
       .select("*, clients(id, business_name, phone, email), order_items(*), profiles:employee_id(name)")
       .eq("id", data.id)
       .maybeSingle();
+    await supabase.from("audit_logs").insert({
+      actor_id: userId,
+      action: "order.created",
+      module: "orders",
+      status: "success",
+      target_type: "order",
+      target_id: order.id,
+      new_value: { order_number: order.order_number, client_id: data.client_id, employee_id, total_amount: total, created_by_role: isAdmin ? "admin" : "employee" },
+    });
+
     return order;
   });
 
@@ -56,6 +66,10 @@ export const createOrder = createServerFn({ method: "POST" })
 
     let status: "pending" | "confirmed" = "confirmed";
     let employee_id = data.employee_id ?? null;
+
+    // Admins can punch orders too; the order is recorded against the admin
+    // unless they explicitly assign it to an employee.
+    if (isAdmin && !employee_id) employee_id = userId;
 
     if (isEmp && !isAdmin) {
       employee_id = userId;
