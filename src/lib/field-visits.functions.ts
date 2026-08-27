@@ -117,7 +117,7 @@ export const setFieldVisitVoiceNote = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.rpc("set_field_visit_voice_note", {
       p_id: data.id,
-      p_path: data.path,
+      p_path: data.path as unknown as string,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
