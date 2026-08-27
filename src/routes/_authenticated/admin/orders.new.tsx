@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { NewOrderForm } from "@/components/orders/new-order-form";
 
-export const Route = createFileRoute("/_authenticated/employee/orders/new")({
+export const Route = createFileRoute("/_authenticated/admin/orders/new")({
   head: () => ({
     meta: [
       { title: "New order — Kredix" },
-      { name: "description", content: "Punch a new order on behalf of a client." },
+      { name: "description", content: "Create an order on behalf of a client as an administrator." },
       { property: "og:title", content: "New order — Kredix" },
-      { property: "og:description", content: "Punch a new order on behalf of a client." },
+      { property: "og:description", content: "Create an order on behalf of a client as an administrator." },
       { name: "robots", content: "noindex" },
     ],
   }),
