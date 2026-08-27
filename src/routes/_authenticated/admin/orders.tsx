@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listOrders, updateOrderStatus } from "@/lib/orders.functions";
@@ -204,16 +204,7 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
 
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
-  head: () => ({
-    meta: [
-      { title: "Orders — Kredix" },
-      { name: "description", content: "All orders across clients and employees." },
-      { property: "og:title", content: "Orders — Kredix" },
-      { property: "og:description", content: "All orders across clients and employees." },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
-  component: () => <OrdersTable scope="admin" />,
+  component: () => <Outlet />,
 });
 
 export { OrdersTable };

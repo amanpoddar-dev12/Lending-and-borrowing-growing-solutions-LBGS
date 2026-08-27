@@ -40,6 +40,7 @@ import { Route as AuthenticatedAdminCreditRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin/activity'
 import { Route as AuthenticatedEmployeeOrdersIndexRouteImport } from './routes/_authenticated/employee/orders.index'
+import { Route as AuthenticatedAdminOrdersIndexRouteImport } from './routes/_authenticated/admin/orders.index'
 import { Route as AuthenticatedEmployeeOrdersNewRouteImport } from './routes/_authenticated/employee/orders.new'
 import { Route as AuthenticatedAdminOrdersNewRouteImport } from './routes/_authenticated/admin/orders.new'
 import { Route as AuthenticatedAdminLocationsEmployeeIdRouteImport } from './routes/_authenticated/admin/locations/$employeeId'
@@ -221,6 +222,12 @@ const AuthenticatedEmployeeOrdersIndexRoute =
     path: '/employee/orders/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminOrdersIndexRoute =
+  AuthenticatedAdminOrdersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminOrdersRoute,
+  } as any)
 const AuthenticatedEmployeeOrdersNewRoute =
   AuthenticatedEmployeeOrdersNewRouteImport.update({
     id: '/employee/orders/new',
@@ -273,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/admin/locations/$employeeId': typeof AuthenticatedAdminLocationsEmployeeIdRoute
   '/admin/orders/new': typeof AuthenticatedAdminOrdersNewRoute
   '/employee/orders/new': typeof AuthenticatedEmployeeOrdersNewRoute
+  '/admin/orders/': typeof AuthenticatedAdminOrdersIndexRoute
   '/employee/orders/': typeof AuthenticatedEmployeeOrdersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -291,7 +299,6 @@ export interface FileRoutesByTo {
   '/admin/field-visits': typeof AuthenticatedAdminFieldVisitsRoute
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/locations': typeof AuthenticatedAdminLocationsRouteWithChildren
-  '/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/payslips': typeof AuthenticatedAdminPayslipsRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/admin/locations/$employeeId': typeof AuthenticatedAdminLocationsEmployeeIdRoute
   '/admin/orders/new': typeof AuthenticatedAdminOrdersNewRoute
   '/employee/orders/new': typeof AuthenticatedEmployeeOrdersNewRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersIndexRoute
   '/employee/orders': typeof AuthenticatedEmployeeOrdersIndexRoute
 }
 export interface FileRoutesById {
@@ -345,6 +353,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/locations/$employeeId': typeof AuthenticatedAdminLocationsEmployeeIdRoute
   '/_authenticated/admin/orders/new': typeof AuthenticatedAdminOrdersNewRoute
   '/_authenticated/employee/orders/new': typeof AuthenticatedEmployeeOrdersNewRoute
+  '/_authenticated/admin/orders/': typeof AuthenticatedAdminOrdersIndexRoute
   '/_authenticated/employee/orders/': typeof AuthenticatedEmployeeOrdersIndexRoute
 }
 export interface FileRouteTypes {
@@ -382,6 +391,7 @@ export interface FileRouteTypes {
     | '/admin/locations/$employeeId'
     | '/admin/orders/new'
     | '/employee/orders/new'
+    | '/admin/orders/'
     | '/employee/orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -400,7 +410,6 @@ export interface FileRouteTypes {
     | '/admin/field-visits'
     | '/admin/invoices'
     | '/admin/locations'
-    | '/admin/orders'
     | '/admin/payments'
     | '/admin/payslips'
     | '/admin/products'
@@ -417,6 +426,7 @@ export interface FileRouteTypes {
     | '/admin/locations/$employeeId'
     | '/admin/orders/new'
     | '/employee/orders/new'
+    | '/admin/orders'
     | '/employee/orders'
   id:
     | '__root__'
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/locations/$employeeId'
     | '/_authenticated/admin/orders/new'
     | '/_authenticated/employee/orders/new'
+    | '/_authenticated/admin/orders/'
     | '/_authenticated/employee/orders/'
   fileRoutesById: FileRoutesById
 }
@@ -682,6 +693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEmployeeOrdersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/orders/': {
+      id: '/_authenticated/admin/orders/'
+      path: '/'
+      fullPath: '/admin/orders/'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminOrdersRoute
+    }
     '/_authenticated/employee/orders/new': {
       id: '/_authenticated/employee/orders/new'
       path: '/employee/orders/new'
@@ -723,11 +741,13 @@ const AuthenticatedAdminLocationsRouteWithChildren =
 
 interface AuthenticatedAdminOrdersRouteChildren {
   AuthenticatedAdminOrdersNewRoute: typeof AuthenticatedAdminOrdersNewRoute
+  AuthenticatedAdminOrdersIndexRoute: typeof AuthenticatedAdminOrdersIndexRoute
 }
 
 const AuthenticatedAdminOrdersRouteChildren: AuthenticatedAdminOrdersRouteChildren =
   {
     AuthenticatedAdminOrdersNewRoute: AuthenticatedAdminOrdersNewRoute,
+    AuthenticatedAdminOrdersIndexRoute: AuthenticatedAdminOrdersIndexRoute,
   }
 
 const AuthenticatedAdminOrdersRouteWithChildren =
