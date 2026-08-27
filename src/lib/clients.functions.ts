@@ -19,6 +19,22 @@ export const listClients = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+/**
+ * Admin-only client export. Employees are blocked here as well as in the UI so
+ * the export cannot be reached by calling the endpoint directly.
+ */
+export const exportClients = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    if (!(await isAdmin(context))) throw new Error("Only an admin can export client data.");
+    const { data, error } = await context.supabase
+      .from("clients")
+      .select("*, credit_purse(*)")
+      .order("business_name");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
 export const getClient = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
