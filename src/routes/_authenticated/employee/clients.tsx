@@ -28,11 +28,10 @@ import {
 } from "@/components/ui/dialog";
 import { inr } from "@/lib/format";
 import { PhoneDisplay } from "@/components/phone-display";
-import { downloadCsv, num } from "@/lib/csv";
 import { useMemo, useState } from "react";
 import { useVisibleRows } from "@/hooks/use-visible-rows";
 import { toast } from "sonner";
-import { Download, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { qk } from "@/lib/query-keys";
 import { usePermissions } from "@/hooks/use-permissions";
 import { invalidateFor } from "@/lib/query-mutations";
@@ -129,28 +128,6 @@ function EmpClients() {
   }, [data, q]);
   const { shown, hasMore, remaining, showMore } = useVisibleRows(filtered, 60);
 
-  function exportCsv() {
-    downloadCsv(
-      "clients.csv",
-      filtered.map((c: any) => {
-        const purse = Array.isArray(c.credit_purse) ? c.credit_purse[0] : c.credit_purse;
-        return {
-          "Business name": c.business_name,
-          "Contact person": c.contact_person ?? "",
-          Phone: c.phone ?? "",
-          Email: c.email ?? "",
-          GST: c.gst_number ?? "",
-          "Credit limit (INR)": num(c.credit_limit),
-          "Credit terms (days)": Number(c.credit_terms ?? 0),
-          "Interest rate per day (%)": num(Number(c.penalty_rate_per_day ?? 0) * 100, 3),
-          "Used credit (INR)": num(purse?.used_credit),
-          "Remaining credit (INR)": num(purse?.remaining_credit),
-          KYC: c.kyc_verified ? "Verified" : "Pending",
-        };
-      }),
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -163,9 +140,6 @@ function EmpClients() {
           onChange={(e) => setQ(e.target.value)}
           className="w-full sm:ml-auto sm:w-56"
         />
-        <Button variant="outline" onClick={exportCsv}>
-          <Download className="mr-1 size-4" /> CSV
-        </Button>
         {can("clients.manage") && (
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>

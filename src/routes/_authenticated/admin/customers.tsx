@@ -5,6 +5,7 @@ import {
   listClients,
   upsertClient,
   setKycVerified,
+  exportClients,
   listCreditRequests,
   reviewCreditRequest,
   MIN_CREDIT_LIMIT,
@@ -71,10 +72,19 @@ function Customers() {
   );
   const { shown, hasMore, remaining, showMore } = useVisibleRows(filtered, 100);
 
-  function exportCsv() {
-    downloadCsv(
+  const exportFn = useServerFn(exportClients);
+  const [exporting, setExporting] = useState(false);
+
+  /** Export runs through an admin-only endpoint, so it cannot be reached by employees. */
+  async function exportCsv() {
+    setExporting(true);
+    try {
+      const rows = (await exportFn()) as any[];
+      const q2 = q.toLowerCase();
+      const source = q2 ? rows.filter((c: any) => c.business_name.toLowerCase().includes(q2)) : rows;
+      await downloadCsv(
       "customers.csv",
-      filtered.map((c: any) => {
+      source.map((c: any) => {
         const purse = Array.isArray(c.credit_purse) ? c.credit_purse[0] : c.credit_purse;
         return {
           "Business name": c.business_name,
@@ -95,7 +105,13 @@ function Customers() {
           "Created on": csvDate(c.created_at),
         };
       }),
-    );
+      );
+      toast.success("Client export downloaded");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not export clients");
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
@@ -107,7 +123,7 @@ function Customers() {
         </div>
         <div className="ml-auto flex w-full flex-wrap gap-2 sm:w-auto">
           <Input placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} className="w-full sm:w-56" />
-          <Button variant="outline" onClick={exportCsv}><Download className="mr-1 size-4" />CSV</Button>
+          <Button variant="outline" onClick={exportCsv} disabled={exporting}><Download className="mr-1 size-4" />{exporting ? "Exporting…" : "CSV"}</Button>
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditing(null)}><Plus className="mr-1 size-4" />New client</Button>
