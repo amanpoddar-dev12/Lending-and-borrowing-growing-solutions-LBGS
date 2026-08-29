@@ -16,11 +16,20 @@ const DEMO_ACCOUNTS: Record<
 
 /**
  * Dev-only: ensures a demo user exists for the given role, then returns a
- * fresh session. Remove before going to production.
+ * fresh session. This is disabled in production and must never be enabled
+ * in any non-local environment.
  */
 export const demoSignIn = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }) => {
+    // CRITICAL: Only allow demo sign-in in development with explicit opt-in
+    const isDemoEnabled = process.env.VITE_ENABLE_DEMO_AUTH === "true";
+    const isDevelopment = process.env.NODE_ENV === "development";
+    
+    if (!isDemoEnabled || !isDevelopment) {
+      throw new Error("Demo authentication is not enabled in this environment.");
+    }
+
     const acct = DEMO_ACCOUNTS[data.role];
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
