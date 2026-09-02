@@ -48,6 +48,7 @@ export const qk = {
     limit == null ? (["activity-history"] as const) : (["activity-history", limit] as const),
 
   adminReports: ["admin-reports"] as const,
+  analytics: (filters: Record<string, unknown>) => ["analytics", filters] as const,
   audit: (from = "", to = "") => ["audit", from, to] as const,
 } as const;
 
