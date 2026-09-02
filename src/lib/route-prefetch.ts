@@ -19,6 +19,7 @@ const invoices: Entry = { queryKey: qk.invoices, queryFn: () => listInvoices() a
 const products: Entry = { queryKey: qk.products, queryFn: () => listProducts() as any };
 
 const map: Record<string, Entry[]> = {
+  "/admin/analytics": [clients],
   "/admin/customers": [clients],
   "/admin/credit": [clients],
   "/admin/employees": [{ queryKey: qk.employees, queryFn: () => listEmployees() as any }],
