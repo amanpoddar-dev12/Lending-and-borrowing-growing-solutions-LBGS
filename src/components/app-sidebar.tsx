@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard, Users, Package, Receipt, Wallet, ScrollText, MapPin,
-  ClipboardList, Clock, MapPinned, FileText, User, Settings, Activity, History, BadgeIndianRupee,
+  ClipboardList, Clock, MapPinned, FileText, User, Settings, Activity, History, BadgeIndianRupee, BarChart3,
 } from "lucide-react";
 
 
@@ -23,6 +23,7 @@ const navByRole: Record<Role, NavGroup[]> = {
     labelKey: "nav.groups.admin",
     items: [
       { key: "nav.overview", url: "/dashboard", icon: LayoutDashboard },
+      { key: "nav.analytics", url: "/admin/analytics", icon: BarChart3 },
       { key: "nav.customers", url: "/admin/customers", icon: Users },
       { key: "nav.employees", url: "/admin/employees", icon: User },
       { key: "nav.activity", url: "/admin/activity", icon: Activity },

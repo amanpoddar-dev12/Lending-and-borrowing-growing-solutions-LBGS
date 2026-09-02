@@ -89,6 +89,7 @@ export const STALE_TIMES: Array<[readonly unknown[], number]> = [
   // Reports / history.
   [["activity-history"], 2 * 60_000],
   [["admin-reports"], 2 * 60_000],
+  [["analytics"], 2 * 60_000],
   [["audit"], 2 * 60_000],
 ];
 

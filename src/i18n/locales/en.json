@@ -37,7 +37,8 @@
     "payslips": "Payslips",
     "myPayslips": "My payslips",
     "fieldVisits": "Field visits",
-    "myVisits": "My field visits"
+    "myVisits": "My field visits",
+    "analytics": "Analytics"
   },
   "auth": {
     "welcome": "Welcome to Kredix",
