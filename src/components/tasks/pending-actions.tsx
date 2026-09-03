@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
@@ -33,13 +33,11 @@ export function PendingActions({ initial = 4 }: { initial?: number }) {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<{ id: string; business_name: string } | null>(null);
   const [dismissed, setDismissed] = useState<DismissMap>({});
-  const [hydratedFor, setHydratedFor] = useState<string | null>(null);
 
   // Dismissals are personal and stored per user on this device.
-  if (me?.userId && hydratedFor !== me.userId) {
-    setHydratedFor(me.userId);
-    setDismissed(readDismissed(me.userId));
-  }
+  useEffect(() => {
+    if (me?.userId) setDismissed(readDismissed(me.userId));
+  }, [me?.userId]);
 
   const allTasks: PendingTask[] = data?.tasks ?? [];
   const role = data?.role;
