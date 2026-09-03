@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { getPendingTasks, type PendingTask } from "@/lib/task-center.functions";
+import { getMe } from "@/lib/me.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { OrderReviewPanel } from "@/components/orders/order-review-panel";
@@ -10,8 +11,10 @@ import { AssignClientDialog } from "@/components/admin/assign-client-dialog";
 import { useRealtimeOrders } from "@/hooks/use-realtime-orders";
 import { inr, fmtDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, X } from "lucide-react";
 import { qk } from "@/lib/query-keys";
+import { readDismissed, writeDismissed, type DismissMap } from "@/lib/dismissed-tasks";
+import { toast } from "sonner";
 
 const PRIORITY_STYLE: Record<string, { dot: string; ring: string; label: string }> = {
   action_required: { dot: "bg-red-500", ring: "border-red-500/40 bg-red-500/5", label: "Action required" },
