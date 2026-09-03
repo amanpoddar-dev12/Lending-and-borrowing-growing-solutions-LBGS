@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Shield, Briefcase, User, ArrowLeft } from "lucide-react";
 import { Spinner } from "@/components/global-loader";
+import { IN_PHONE_REGEX, IN_PHONE_MESSAGE, normalizeIndianPhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -35,8 +36,7 @@ const ROLE_META: Record<Role, { icon: typeof Shield; titleKey: string; descKey: 
   client: { icon: User, titleKey: "auth.roles.client", descKey: "auth.roleDesc.client" },
 };
 
-const phoneRegex = /^\+[1-9]\d{7,14}$/;
-const RESEND_SECONDS = 30;
+const RESEND_SECONDS = 120;
 
 function AuthPage() {
   const { t } = useTranslation();
@@ -69,12 +69,14 @@ function AuthPage() {
   async function onSendCode(e: React.FormEvent) {
     e.preventDefault();
     if (!role) return;
-    if (!phoneRegex.test(phone)) {
-      return toast.error("Enter a phone number in E.164 format, e.g. +14155552671");
+    const normalized = normalizeIndianPhone(phone);
+    if (!IN_PHONE_REGEX.test(normalized)) {
+      return toast.error(IN_PHONE_MESSAGE);
     }
+    setPhone(normalized);
     setBusy(true);
     try {
-      await send({ data: { phone, role } });
+      await send({ data: { phone: normalized, role } });
       toast.success("Verification code sent");
       setStep("code");
       setCooldown(RESEND_SECONDS);
@@ -231,12 +233,14 @@ function AuthPage() {
                       id="phone"
                       type="tel"
                       required
-                      placeholder="+91 98765 43210"
+                      placeholder="98765 43210"
+                      inputMode="numeric"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      onBlur={() => setPhone((p) => normalizeIndianPhone(p))}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Include country code. We'll text you a verification code.
+                      Indian mobile numbers only — type 10 digits and we'll add +91 for you.
                     </p>
                   </div>
                   <Button className="w-full" type="submit" disabled={busy}>
@@ -298,7 +302,9 @@ function AuthPage() {
                       disabled={busy || cooldown > 0}
                       onClick={onResend}
                     >
-                      {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
+                      {cooldown > 0
+                        ? `Resend in ${Math.floor(cooldown / 60)}:${String(cooldown % 60).padStart(2, "0")}`
+                        : "Resend code"}
                     </button>
                   </div>
                 </form>
