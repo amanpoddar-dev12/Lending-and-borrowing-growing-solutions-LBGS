@@ -140,7 +140,19 @@ export function PendingActions({ initial = 4 }: { initial?: number }) {
                       .join(" · ")}
                   </p>
                 </div>
-                {action}
+                <div className="flex items-center gap-2 sm:shrink-0">
+                  {action}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
+                    aria-label={`Remove "${t.title}" from your pending actions`}
+                    title="Remove from my pending actions"
+                    onClick={() => dismiss(t)}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
               </div>
             );
           })}
