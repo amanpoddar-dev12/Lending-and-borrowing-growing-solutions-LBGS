@@ -30,6 +30,6 @@ export function notificationTarget(
     case "payment_reminder":
       return { route: role === "client" ? "/client/ledger" : "/admin/payments" };
     default:
-      return ref ? { orderId: ref } : null;
+      return null;
   }
 }
