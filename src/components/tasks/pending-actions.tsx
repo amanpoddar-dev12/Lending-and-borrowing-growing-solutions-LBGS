@@ -25,15 +25,50 @@ const PRIORITY_STYLE: Record<string, { dot: string; ring: string; label: string 
 
 export function PendingActions({ initial = 4 }: { initial?: number }) {
   const fn = useServerFn(getPendingTasks);
+  const meFn = useServerFn(getMe);
   useRealtimeOrders();
   const { data, isLoading } = useQuery({ queryKey: qk.pendingTasks, queryFn: () => fn() });
+  const { data: me } = useQuery({ queryKey: qk.me, queryFn: () => meFn() });
   const [showAll, setShowAll] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<{ id: string; business_name: string } | null>(null);
+  const [dismissed, setDismissed] = useState<DismissMap>({});
+  const [hydratedFor, setHydratedFor] = useState<string | null>(null);
 
-  const tasks: PendingTask[] = data?.tasks ?? [];
+  // Dismissals are personal and stored per user on this device.
+  if (me?.userId && hydratedFor !== me.userId) {
+    setHydratedFor(me.userId);
+    setDismissed(readDismissed(me.userId));
+  }
+
+  const allTasks: PendingTask[] = data?.tasks ?? [];
   const role = data?.role;
+  const tasks = useMemo(
+    () => allTasks.filter((t) => dismissed[t.id] !== t.status),
+    [allTasks, dismissed],
+  );
+  const hiddenCount = allTasks.length - tasks.length;
   const visible = showAll ? tasks : tasks.slice(0, initial);
+
+  const update = (next: DismissMap) => {
+    setDismissed(next);
+    writeDismissed(me?.userId, next);
+  };
+
+  const dismiss = (t: PendingTask) => {
+    update({ ...dismissed, [t.id]: t.status });
+    toast.success("Removed from your pending actions", {
+      description: "It stays visible for other users and returns if the item changes.",
+      action: {
+        label: "Undo",
+        onClick: () => {
+          const next = { ...dismissed };
+          delete next[t.id];
+          update(next);
+        },
+      },
+    });
+  };
 
   return (
     <>
@@ -42,11 +77,18 @@ export function PendingActions({ initial = 4 }: { initial?: number }) {
           <CardTitle className="text-base">
             Pending actions{tasks.length > 0 && ` (${tasks.length})`}
           </CardTitle>
-          {tasks.length > initial && (
-            <Button size="sm" variant="ghost" onClick={() => setShowAll((v) => !v)}>
-              {showAll ? "Show less" : "View all"}
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            {hiddenCount > 0 && (
+              <Button size="sm" variant="ghost" onClick={() => update({})}>
+                Restore {hiddenCount} removed
+              </Button>
+            )}
+            {tasks.length > initial && (
+              <Button size="sm" variant="ghost" onClick={() => setShowAll((v) => !v)}>
+                {showAll ? "Show less" : "View all"}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-2">
           {isLoading && <p className="py-4 text-sm text-muted-foreground">Loading…</p>}
