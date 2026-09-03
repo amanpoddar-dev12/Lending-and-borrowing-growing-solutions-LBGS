@@ -19,6 +19,7 @@ import { qk } from "@/lib/query-keys";
 import { EmployeePermissionsDialog, useEmployeePermissionMap } from "@/components/admin/employee-permissions-dialog";
 import { ALL_PERMISSIONS } from "@/lib/permissions";
 import { invalidateFor } from "@/lib/query-mutations";
+import { IN_PHONE_REGEX, normalizeIndianPhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_authenticated/admin/employees")({
   head: () => ({
