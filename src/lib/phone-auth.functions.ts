@@ -1,11 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { IN_PHONE_REGEX, IN_PHONE_MESSAGE, normalizeIndianPhone } from "@/lib/phone";
 
-// E.164: leading + and 8–15 digits
+// Indian mobiles only: +91 followed by exactly 10 digits.
+// Loose input is normalised first so the frontend/backend rules match exactly.
 const phoneSchema = z
   .string()
   .trim()
-  .regex(/^\+[1-9]\d{7,14}$/, "Phone must be in E.164 format, e.g. +14155552671");
+  .transform(normalizeIndianPhone)
+  .refine((v) => IN_PHONE_REGEX.test(v), IN_PHONE_MESSAGE);
 
 const roleSchema = z.enum(["admin", "employee", "client"]);
 

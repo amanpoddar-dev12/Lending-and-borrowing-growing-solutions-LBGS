@@ -2,6 +2,20 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { ALL_PERMISSIONS } from "./permissions";
+import { IN_PHONE_REGEX, IN_PHONE_MESSAGE, normalizeIndianPhone } from "./phone";
+
+// Employees sign in with a phone OTP. Supabase still requires an email +
+// password on the auth user, so we mint deterministic synthetic ones that are
+// never surfaced or used for login.
+function syntheticEmail(phone: string) {
+  return `phone.${phone.replace(/[^0-9]/g, "")}@phone.kredix.local`;
+}
+
+function randomPassword() {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return "P!" + Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("") + "Aa9";
+}
 
 const isAdmin = async (ctx: { supabase: any; userId: string }) => {
   const { data } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
@@ -29,32 +43,37 @@ export const createEmployee = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({
-      email: z.string().email(),
-      password: z.string().min(8),
-      name: z.string().min(1),
-      phone: z.string().optional(),
+      name: z.string().trim().min(1),
+      phone: z
+        .string()
+        .trim()
+        .transform(normalizeIndianPhone)
+        .refine((v) => IN_PHONE_REGEX.test(v), IN_PHONE_MESSAGE),
       territory: z.string().optional(),
-      order_limit: z.number().int().positive().default(100),
       max_order_value: z.number().nonnegative().default(100000),
       base_salary: z.number().nonnegative().default(0),
-      commission_rate: z.number().min(0).max(1).default(0.02),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
     if (!(await isAdmin(context))) throw new Error("Forbidden");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existingPhone } = await supabaseAdmin
+      .from("profiles").select("id").eq("phone", data.phone).maybeSingle();
+    if (existingPhone) throw new Error("Phone number is already in use.");
+    const email = syntheticEmail(data.phone);
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
-      email: data.email, password: data.password, email_confirm: true,
-      user_metadata: { name: data.name },
+      email, password: randomPassword(), email_confirm: true,
+      phone: data.phone, phone_confirm: true,
+      user_metadata: { name: data.name, phone: data.phone },
     });
     if (error) throw new Error(error.message);
     const uid = created.user!.id;
-    await supabaseAdmin.from("profiles").upsert({ id: uid, email: data.email, name: data.name, phone: data.phone }, { onConflict: "id" });
+    await supabaseAdmin.from("profiles").upsert({ id: uid, email, name: data.name, phone: data.phone }, { onConflict: "id" });
     await supabaseAdmin.from("user_roles").delete().eq("user_id", uid);
     await supabaseAdmin.from("user_roles").insert({ user_id: uid, role: "employee" });
     await supabaseAdmin.from("employee_profiles").insert({
-      id: uid, territory: data.territory, order_limit: data.order_limit,
-      max_order_value: data.max_order_value, base_salary: data.base_salary, commission_rate: data.commission_rate,
+      id: uid, territory: data.territory,
+      max_order_value: data.max_order_value, base_salary: data.base_salary,
     });
     // New employees start with the full employee toolkit; admins can restrict
     // them afterwards from the permissions dialog.
