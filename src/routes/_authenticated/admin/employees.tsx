@@ -139,11 +139,11 @@ function EmployeeRow({ e, perms, updateFn, onSaved }: any) {
 
 function CreateForm({ createFn, onDone }: any) {
   const [v, setV] = useState({
-    email: "", password: "", name: "", phone: "", territory: "",
-    order_limit: 100, max_order_value: 100000, base_salary: 0, commission_rate: 0.02,
+    name: "", phone: "", territory: "", max_order_value: 100000, base_salary: 0,
   });
+  const phoneOk = IN_PHONE_REGEX.test(normalizeIndianPhone(v.phone));
   const mut = useMutation({
-    mutationFn: () => createFn({ data: { ...v, order_limit: Number(v.order_limit), max_order_value: Number(v.max_order_value), base_salary: Number(v.base_salary), commission_rate: Number(v.commission_rate) } }),
+    mutationFn: () => createFn({ data: { ...v, phone: normalizeIndianPhone(v.phone), max_order_value: Number(v.max_order_value), base_salary: Number(v.base_salary) } }),
     onSuccess: () => { toast.success("Employee created"); onDone(); },
     onError: (e: any) => toast.error(e.message),
   });
@@ -152,16 +152,24 @@ function CreateForm({ createFn, onDone }: any) {
       <DialogHeader><DialogTitle>New employee</DialogTitle></DialogHeader>
       <div className="grid gap-3 md:grid-cols-2">
         <F label="Name"><Input value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} /></F>
-        <F label="Email"><Input type="email" value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} /></F>
-        <F label="Password"><Input type="password" value={v.password} onChange={(e) => setV({ ...v, password: e.target.value })} /></F>
-        <F label="Phone"><Input placeholder="+919876543210" value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} /></F>
+        <F label="Mobile number">
+          <Input
+            inputMode="numeric"
+            placeholder="98765 43210"
+            value={v.phone}
+            onChange={(e) => setV({ ...v, phone: e.target.value })}
+            onBlur={() => setV((s) => ({ ...s, phone: normalizeIndianPhone(s.phone) }))}
+          />
+        </F>
         <F label="Territory"><Input value={v.territory} onChange={(e) => setV({ ...v, territory: e.target.value })} /></F>
         <F label="Max order value (₹)"><Input type="number" value={v.max_order_value} onChange={(e) => setV({ ...v, max_order_value: e.target.value as any })} /></F>
-        <F label="Order limit (count)"><Input type="number" value={v.order_limit} onChange={(e) => setV({ ...v, order_limit: e.target.value as any })} /></F>
-        <F label="Commission rate (0-1)"><Input type="number" step="0.01" value={v.commission_rate} onChange={(e) => setV({ ...v, commission_rate: e.target.value as any })} /></F>
+        <F label="Base salary (₹)"><Input type="number" value={v.base_salary} onChange={(e) => setV({ ...v, base_salary: e.target.value as any })} /></F>
       </div>
+      <p className="text-xs text-muted-foreground">
+        The employee signs in with this mobile number and an OTP — no email or password needed.
+      </p>
       <DialogFooter>
-        <Button onClick={() => mut.mutate()} disabled={mut.isPending || !v.email || v.password.length < 8}>{mut.isPending ? "Creating…" : "Create"}</Button>
+        <Button onClick={() => mut.mutate()} disabled={mut.isPending || v.name.trim().length < 1 || !phoneOk}>{mut.isPending ? "Creating…" : "Create"}</Button>
       </DialogFooter>
     </DialogContent>
   );
