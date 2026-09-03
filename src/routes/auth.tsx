@@ -79,6 +79,7 @@ function AuthPage() {
       setStep("code");
       setCooldown(RESEND_SECONDS);
     } catch (err: any) {
+      console.log(err);
       toast.error(err?.message ?? "Failed to send code");
     } finally {
       setBusy(false);
@@ -93,6 +94,7 @@ function AuthPage() {
       toast.success("Code resent");
       setCooldown(RESEND_SECONDS);
     } catch (err: any) {
+      console.log(err);
       toast.error(err?.message ?? "Failed to resend");
     } finally {
       setBusy(false);
@@ -139,10 +141,11 @@ function AuthPage() {
 
   return (
     <div className="grid min-h-screen place-items-center bg-background p-4">
-
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 grid size-10 place-items-center rounded-md bg-primary text-primary-foreground font-bold">K</div>
+          <div className="mx-auto mb-2 grid size-10 place-items-center rounded-md bg-primary text-primary-foreground font-bold">
+            K
+          </div>
           <CardTitle className="font-display text-2xl">{t("auth.welcome")}</CardTitle>
           <CardDescription>
             {role ? t(ROLE_META[role].descKey, { defaultValue: t("auth.subtitle") }) : t("auth.subtitle")}
@@ -167,9 +170,7 @@ function AuthPage() {
                       <Icon className="size-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium capitalize">
-                        {t(ROLE_META[r].titleKey, { defaultValue: r })}
-                      </div>
+                      <div className="font-medium capitalize">{t(ROLE_META[r].titleKey, { defaultValue: r })}</div>
                       <div className="truncate text-xs text-muted-foreground">
                         {t(ROLE_META[r].descKey, {
                           defaultValue:
@@ -185,9 +186,7 @@ function AuthPage() {
                 );
               })}
               <div className="mt-4 rounded-lg border border-dashed border-border p-3">
-                <p className="mb-2 text-center text-xs font-medium text-muted-foreground">
-                  Dev demo — quick sign-in
-                </p>
+                <p className="mb-2 text-center text-xs font-medium text-muted-foreground">Dev demo — quick sign-in</p>
                 <div className="grid grid-cols-3 gap-2">
                   {(Object.keys(ROLE_META) as Role[]).map((r) => (
                     <Button
@@ -205,7 +204,6 @@ function AuthPage() {
                 </div>
               </div>
             </div>
-
           ) : (
             <>
               <button
@@ -242,7 +240,13 @@ function AuthPage() {
                     </p>
                   </div>
                   <Button className="w-full" type="submit" disabled={busy}>
-                    {busy ? (<><Spinner className="mr-2" /> Sending…</>) : "Send code"}
+                    {busy ? (
+                      <>
+                        <Spinner className="mr-2" /> Sending…
+                      </>
+                    ) : (
+                      "Send code"
+                    )}
                   </Button>
                   <p className="text-center text-xs text-muted-foreground">
                     {role === "admin"
@@ -269,7 +273,13 @@ function AuthPage() {
                     />
                   </div>
                   <Button className="w-full" type="submit" disabled={busy}>
-                    {busy ? (<><Spinner className="mr-2" /> Verifying…</>) : "Sign in"}
+                    {busy ? (
+                      <>
+                        <Spinner className="mr-2" /> Verifying…
+                      </>
+                    ) : (
+                      "Sign in"
+                    )}
                   </Button>
                   <div className="flex items-center justify-between text-xs">
                     <button
