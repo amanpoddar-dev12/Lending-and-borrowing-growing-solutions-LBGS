@@ -81,9 +81,20 @@ export const createOrder = createServerFn({ method: "POST" })
     const items = data.items.map((i) => ({ ...i, order_id: order.id, amount: i.quantity * i.rate }));
     await supabase.from("order_items").insert(items);
 
-    // Notify client
+    // Auto-route straight to the client for approval. Orders that tripped the
+    // employee limit stay "pending" so admin approval still happens first.
+    let autoSubmitted = false;
+    if (status === "confirmed") {
+      const { error: submitError } = await supabase.rpc("submit_order_for_client", { p_id: order.id });
+      if (!submitError) {
+        autoSubmitted = true;
+        order.status = "pending_client";
+      }
+    }
+
+    // Notify client (the approval RPC already notifies when auto-submitted).
     const { data: cli } = await supabase.from("clients").select("user_id, business_name").eq("id", data.client_id).maybeSingle();
-    if (cli?.user_id) {
+    if (cli?.user_id && !autoSubmitted) {
       await supabase.from("notifications").insert({
         user_id: cli.user_id, type: "order", title: "New order received",
         message: `Order ${order.order_number} pending your review`, reference_id: order.id,
