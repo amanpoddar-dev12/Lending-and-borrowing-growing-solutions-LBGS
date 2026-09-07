@@ -68,12 +68,12 @@ export const listPayments = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
-/** Payment attempts, invoice/due-date info and (client/admin only) the live delivery code. */
+/** Payment attempts, due-date info and (client/admin only) the live delivery code. */
 export const getOrderDeliveryState = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const [payments, otps, invoices, reminders] = await Promise.all([
+    const [payments, otps, order, reminders] = await Promise.all([
       context.supabase
         .from("order_payments")
         .select("*")
@@ -87,11 +87,10 @@ export const getOrderDeliveryState = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false })
         .limit(1),
       context.supabase
-        .from("invoices")
-        .select("id, invoice_number, amount, payment_amount, due_date, invoice_date, status")
-        .eq("order_id", data.id)
-        .order("created_at", { ascending: true })
-        .limit(1),
+        .from("orders")
+        .select("id, total_amount, status, order_date, delivery_date, created_at, client_id, clients(credit_terms)")
+        .eq("id", data.id)
+        .maybeSingle(),
       context.supabase
         .from("payment_reminders")
         .select("id, stage, status, due_date, amount_due, credit_terms, created_at")
@@ -99,10 +98,35 @@ export const getOrderDeliveryState = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false }),
     ]);
     const otp = (otps.data ?? [])[0] ?? null;
+
+    // Amount due is derived from the order itself: total minus verified
+    // payments, due `credit_terms` days after delivery.
+    const o: any = order.data ?? null;
+    let due: null | {
+      amount: number; paid: number; balance: number; due_date: string;
+      delivered_at: string | null; credit_terms: number; overdue: boolean;
+    } = null;
+    if (o) {
+      const terms = Number(o.clients?.credit_terms ?? 0);
+      const paid = (payments.data ?? [])
+        .filter((p: any) => p.status === "verified")
+        .reduce((s: number, p: any) => s + Number(p.amount ?? 0), 0);
+      const amount = Number(o.total_amount ?? 0);
+      const base = o.delivery_date ?? o.order_date ?? o.created_at;
+      const dueDate = new Date(new Date(base).getTime() + Math.max(0, terms) * 864e5).toISOString();
+      const balance = Math.max(0, amount - paid);
+      due = {
+        amount, paid, balance, due_date: dueDate,
+        delivered_at: o.delivery_date ?? null,
+        credit_terms: terms,
+        overdue: balance > 0.005 && new Date(dueDate).getTime() < Date.now(),
+      };
+    }
+
     return {
       payments: payments.data ?? [],
       otp: otp && otp.active && !otp.used_at ? otp : null,
-      invoice: (invoices.data ?? [])[0] ?? null,
+      due,
       reminders: reminders.data ?? [],
     };
   });
@@ -113,7 +137,7 @@ export const listPaymentReminders = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("payment_reminders")
-      .select("*, clients(business_name), orders(order_number, status), invoices(invoice_number, due_date, amount, payment_amount, status)")
+      .select("*, clients(business_name), orders(order_number, status)")
       .order("due_date", { ascending: true })
       .limit(300);
     if (error) throw new Error(error.message);
