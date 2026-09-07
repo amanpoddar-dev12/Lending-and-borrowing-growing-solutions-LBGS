@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { buildReceivables, openReceivables, overdueReceivables, totalBalance } from "@/lib/receivables";
 
 /**
  * Admin analytics — a single aggregated read for the BI dashboard.
@@ -68,7 +69,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
     const orderSel =
       "id, order_number, client_id, employee_id, status, total_amount, order_date, delivery_date, created_at, updated_at, clients(business_name), profiles:employee_id(name)";
 
-    const [ordersRes, invoicesRes, paymentsRes, clientsRes, profilesRes, tasksRes, opRes] = await Promise.all([
+    const [ordersRes, receivableRes, paymentsRes, clientsRes, profilesRes, tasksRes, opRes, verifiedRes] = await Promise.all([
       supabase
         .from("orders")
         .select(orderSel)
@@ -77,8 +78,8 @@ export const adminAnalytics = createServerFn({ method: "GET" })
         .order("order_date", { ascending: false })
         .limit(20000),
       supabase
-        .from("invoices")
-        .select("id, invoice_number, client_id, amount, payment_amount, penalty_amount, status, invoice_date, due_date, clients(business_name)")
+        .from("orders")
+        .select("id, order_number, client_id, status, total_amount, order_date, delivery_date, created_at, clients(business_name)")
         .limit(20000),
       supabase
         .from("payments")
@@ -86,7 +87,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
         .gte("payment_date", windowFrom.toISOString())
         .lte("payment_date", to.toISOString())
         .limit(20000),
-      supabase.from("clients").select("id, business_name, active, created_at").limit(20000),
+      supabase.from("clients").select("id, business_name, active, created_at, credit_terms").limit(20000),
       supabase.from("employee_profiles").select("id, active, profiles:id(name)").limit(5000),
       supabase.from("tasks").select("id, employee_id, status, completed_date, created_at").limit(20000),
       supabase
@@ -95,6 +96,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
         .gte("submitted_at", windowFrom.toISOString())
         .lte("submitted_at", to.toISOString())
         .limit(20000),
+      supabase.from("order_payments").select("order_id, amount, status").eq("status", "verified").limit(20000),
     ]);
 
     let orders: Row[] = ordersRes.data ?? [];
@@ -123,7 +125,13 @@ export const adminAnalytics = createServerFn({ method: "GET" })
     const scopeClient = (row: Row) => (!data.clientId || row.client_id === data.clientId) && clientIds.has(row.client_id);
 
     const payments: Row[] = (paymentsRes.data ?? []).filter(scopeClient);
-    const invoices: Row[] = (invoicesRes.data ?? []).filter(scopeClient);
+    const termsByClient = new Map<string, number>(clients.map((c) => [c.id, Number(c.credit_terms ?? 0)] as [string, number]));
+    const receivables = buildReceivables({
+      orders: ((receivableRes.data ?? []) as Row[]).filter(scopeClient) as any,
+      orderPayments: (verifiedRes.data ?? []) as any,
+      clientPayments: (paymentsRes.data ?? []).filter(scopeClient) as any,
+      termsByClient,
+    });
     const orderPayments: Row[] = (opRes.data ?? []).filter(scopeClient);
     const tasks: Row[] = (tasksRes.data ?? []).filter((t) => !data.employeeId || t.employee_id === data.employeeId);
     const employees: Row[] = profilesRes.data ?? [];
@@ -135,7 +143,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
       const completed = os.filter((o) => COMPLETED.has(o.status));
       const cancelled = os.filter((o) => CANCELLED.has(o.status));
       const pending = os.filter((o) => !COMPLETED.has(o.status) && !CANCELLED.has(o.status));
-      const invoiced = invoices.filter((i) => inRange(i.invoice_date, a, b));
+      const billed = receivables.filter((r) => inRange(r.due_date, a, b));
       const revenue = sum(completed.map((o) => num(o.total_amount)));
       const collected = sum(ps.map((p) => num(p.amount)));
       const gross = sum(os.map((o) => num(o.total_amount)));
@@ -154,7 +162,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
         cancelledOrders: cancelled.length,
         aov: os.length ? gross / os.length : 0,
         collected,
-        invoicedAmount: sum(invoiced.map((i) => num(i.amount))),
+        billedAmount: sum(billed.map((r) => r.amount)),
         pendingPayments: sum(orderPayments.filter((p) => inRange(p.submitted_at, a, b) && p.status === "submitted").map((p) => num(p.amount))),
         newClients,
         activeClients: new Set(os.map((o) => o.client_id)).size,
@@ -172,9 +180,9 @@ export const adminAnalytics = createServerFn({ method: "GET" })
     const lastYear = bundle(yoyFrom, yoyTo);
 
     const now = Date.now();
-    const openInvoices = invoices.filter((i) => num(i.amount) > num(i.payment_amount) && i.status !== "declined");
-    const outstanding = sum(openInvoices.map((i) => num(i.amount) - num(i.payment_amount)));
-    const overdue = openInvoices.filter((i) => new Date(i.due_date).getTime() < now);
+    const openItems = openReceivables(receivables);
+    const outstanding = totalBalance(openItems);
+    const overdue = overdueReceivables(receivables, now);
 
     const kpi = (key: string, unit: "currency" | "number" | "percent" | "days") => ({
       key,
@@ -244,9 +252,9 @@ export const adminAnalytics = createServerFn({ method: "GET" })
       if (COMPLETED.has(o.status)) e.revenue += num(o.total_amount);
       clientAgg.set(o.client_id, e);
     });
-    openInvoices.forEach((i) => {
-      const e = clientAgg.get(i.client_id) ?? { id: i.client_id, name: i.clients?.business_name ?? "—", revenue: 0, orders: 0, outstanding: 0 };
-      e.outstanding += num(i.amount) - num(i.payment_amount);
+    openItems.forEach((i) => {
+      const e = clientAgg.get(i.client_id) ?? { id: i.client_id, name: i.client, revenue: 0, orders: 0, outstanding: 0 };
+      e.outstanding += i.balance;
       clientAgg.set(i.client_id, e);
     });
     const topClients = Array.from(clientAgg.values()).sort((a, b) => b.revenue - a.revenue);
@@ -330,11 +338,9 @@ export const adminAnalytics = createServerFn({ method: "GET" })
 
     const aging = { d0_30: 0, d30_60: 0, d60_plus: 0 };
     overdue.forEach((i) => {
-      const d = Math.floor((now - new Date(i.due_date).getTime()) / 864e5);
-      const out = num(i.amount) - num(i.payment_amount);
-      if (d <= 30) aging.d0_30 += out;
-      else if (d <= 60) aging.d30_60 += out;
-      else aging.d60_plus += out;
+      if (i.days_overdue <= 30) aging.d0_30 += i.balance;
+      else if (i.days_overdue <= 60) aging.d30_60 += i.balance;
+      else aging.d60_plus += i.balance;
     });
 
     return {
@@ -353,7 +359,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
         kpi("aov", "currency"),
         kpi("collected", "currency"),
         kpi("pendingPayments", "currency"),
-        kpi("invoicedAmount", "currency"),
+        kpi("billedAmount", "currency"),
         kpi("newClients", "number"),
         kpi("activeClients", "number"),
         kpi("tasksCompleted", "number"),
@@ -370,9 +376,9 @@ export const adminAnalytics = createServerFn({ method: "GET" })
         totalEmployees: employees.length,
         activeEmployeeRecords: employees.filter((e) => e.active).length,
         outstanding,
-        overdueAmount: sum(overdue.map((i) => num(i.amount) - num(i.payment_amount))),
+        overdueAmount: totalBalance(overdue),
         overdueCount: overdue.length,
-        openInvoiceCount: openInvoices.length,
+        openInvoiceCount: openItems.length,
         avgRevenuePerClient: clientAgg.size ? sum(Array.from(clientAgg.values()).map((c) => c.revenue)) / clientAgg.size : 0,
         repeatClients,
         oneTimeClients,
@@ -399,11 +405,11 @@ export const adminAnalytics = createServerFn({ method: "GET" })
         .sort((a, b) => new Date(b.payment_date).getTime() - new Date(a.payment_date).getTime())
         .slice(0, 100)
         .map((p) => ({ id: p.id, client: p.clients?.business_name ?? "—", amount: num(p.amount), method: p.method ?? "—", date: p.payment_date })),
-      outstandingInvoices: openInvoices
+      outstandingInvoices: openItems
         .map((i) => ({
-          id: i.id, invoice_number: i.invoice_number, client: i.clients?.business_name ?? "—",
-          amount: num(i.amount) - num(i.payment_amount), due_date: i.due_date,
-          days_overdue: Math.max(0, Math.floor((now - new Date(i.due_date).getTime()) / 864e5)),
+          id: i.id, order_number: i.order_number, client: i.client,
+          amount: i.balance, due_date: i.due_date,
+          days_overdue: i.days_overdue,
         }))
         .sort((a, b) => b.days_overdue - a.days_overdue)
         .slice(0, 200),
