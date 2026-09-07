@@ -5,7 +5,6 @@ import { getClientLedger } from "@/lib/ledger.functions";
 import { listOrders } from "@/lib/orders.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { inr, fmtDate } from "@/lib/format";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { OrderReviewPanel } from "@/components/orders/order-review-panel";
