@@ -82,11 +82,11 @@ export function OrderDeliverySection({ order, role }: { order: any; role: "admin
   const payments: any[] = data?.payments ?? [];
   const latest = payments[0] ?? null;
   const otp = data?.otp ?? null;
-  const invoice: any = data?.invoice ?? null;
+  const due: any = data?.due ?? null;
   const reminders: any[] = data?.reminders ?? [];
-  const creditTerms: number = reminders[0]?.credit_terms ?? order.clients?.credit_terms ?? 0;
-  const dueAmount = invoice ? Number(invoice.amount) - Number(invoice.payment_amount ?? 0) : 0;
-  const overdue = !!invoice && invoice.status !== "paid" && new Date(invoice.due_date).getTime() < Date.now();
+  const creditTerms: number = due?.credit_terms ?? reminders[0]?.credit_terms ?? order.clients?.credit_terms ?? 0;
+  const dueAmount = due ? Number(due.balance) : 0;
+  const overdue = !!due?.overdue;
   const status: string = order.status;
 
   const [amount, setAmount] = useState(String(order.total_amount ?? ""));
@@ -182,19 +182,19 @@ export function OrderDeliverySection({ order, role }: { order: any; role: "admin
         </div>
         <Progress status={status} />
 
-        {invoice && status !== "paid" && (
+        {due && dueAmount > 0 && status !== "paid" && (
           <div className="rounded-lg border border-border p-3 text-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-medium">Invoice {invoice.invoice_number}</span>
+              <span className="font-medium">Amount due</span>
               <span className="font-display text-base font-semibold">{inr(dueAmount)}</span>
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-              <span>Delivered {fmtDateTime(invoice.invoice_date)}</span>
+              {due.delivered_at && <span>Delivered {fmtDateTime(due.delivered_at)}</span>}
               <span>
                 Credit terms: {creditTerms === 0 ? "Immediate payment" : `${creditTerms} days`}
               </span>
               <span className={cn(overdue && "font-medium text-red-600 dark:text-red-400")}>
-                Due {fmtDateTime(invoice.due_date)}{overdue ? " — overdue" : ""}
+                Due {fmtDateTime(due.due_date)}{overdue ? " — overdue" : ""}
               </span>
             </div>
           </div>

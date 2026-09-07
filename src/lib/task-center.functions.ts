@@ -201,20 +201,11 @@ export const getPendingTasks = createServerFn({ method: "GET" })
         });
       }
 
-      // Invoice/due-date context for delivered orders awaiting payment.
-      const deliveredIds = (orders.data ?? []).filter((o: any) => o.status === "completed").map((o: any) => o.id);
-      const invoiceByOrder = new Map<string, any>();
-      if (deliveredIds.length) {
-        const invs = await supabase
-          .from("invoices")
-          .select("order_id, invoice_number, amount, payment_amount, due_date, status")
-          .in("order_id", deliveredIds);
-        const termsByOrder = new Map<string, number>(
-          (reminders.data ?? []).map((r: any) => [String(r.order_id), Number(r.credit_terms ?? 0)] as [string, number]),
-        );
-        for (const i of invs.data ?? []) {
-          invoiceByOrder.set(String(i.order_id), { ...i, credit_terms: termsByOrder.get(String(i.order_id)) ?? 0 });
-        }
+      // Due-date context for delivered orders awaiting payment, taken from the
+      // payment reminder rows (order delivery date + the client's credit terms).
+      const dueByOrder = new Map<string, any>();
+      for (const r of reminders.data ?? []) {
+        dueByOrder.set(String(r.order_id), r);
       }
 
       for (const o of orders.data ?? []) {
@@ -248,20 +239,20 @@ export const getPendingTasks = createServerFn({ method: "GET" })
             actionLabel: "Mark out for delivery",
           });
         } else if (o.status === "completed") {
-          const inv = invoiceByOrder.get(o.id);
-          const due = inv?.due_date ? new Date(inv.due_date) : null;
+          const rem = dueByOrder.get(o.id);
+          const due = rem?.due_date ? new Date(rem.due_date) : null;
           const isOverdue = due ? due.getTime() < Date.now() : false;
           tasks.push({
             ...base,
             id: `collect:${o.id}`,
             type: "payment_follow_up",
             priority: isOverdue ? "overdue" : "action_required",
-            amount: inv ? Number(inv.amount) - Number(inv.payment_amount ?? 0) : base.amount,
+            amount: rem ? Number(rem.amount_due ?? base.amount) : base.amount,
             title: isOverdue ? "Payment overdue — follow up" : "Payment follow-up",
             description:
-              `${o.order_number} — delivered${inv ? `, invoice ${inv.invoice_number}` : ""}. ` +
+              `${o.order_number} — delivered. ` +
               (due
-                ? `Due ${due.toLocaleDateString("en-IN")} (${inv?.credit_terms ?? 0}-day terms).`
+                ? `Due ${due.toLocaleDateString("en-IN")} (${rem?.credit_terms ?? 0}-day terms).`
                 : "Collect payment from the client."),
             status: isOverdue ? "Overdue" : "Action required",
             actionLabel: "Open order",
@@ -324,17 +315,17 @@ export const getPendingTasks = createServerFn({ method: "GET" })
           .order("reviewed_at", { ascending: false }),
       ]);
 
-      const clientInvoices = new Map<string, any>();
+      const clientDues = new Map<string, any>();
       {
         const dueIds = (orders.data ?? [])
           .filter((o: any) => o.status === "completed" || o.status === "payment_pending")
           .map((o: any) => o.id);
         if (dueIds.length) {
-          const invs = await supabase
-            .from("invoices")
-            .select("order_id, invoice_number, amount, payment_amount, due_date, status")
+          const rems = await supabase
+            .from("payment_reminders")
+            .select("order_id, due_date, amount_due, credit_terms")
             .in("order_id", dueIds);
-          for (const i of invs.data ?? []) clientInvoices.set(String(i.order_id), i);
+          for (const r of rems.data ?? []) clientDues.set(String(r.order_id), r);
         }
       }
 
@@ -363,8 +354,8 @@ export const getPendingTasks = createServerFn({ method: "GET" })
           });
         } else if (o.status === "payment_pending" || o.status === "completed") {
           const rej = lastRejection.get(o.id);
-          const inv = clientInvoices.get(o.id);
-          const due = inv?.due_date ? new Date(inv.due_date) : null;
+          const rem = clientDues.get(o.id);
+          const due = rem?.due_date ? new Date(rem.due_date) : null;
           const isOverdue = due ? due.getTime() < Date.now() : false;
           tasks.push({
             ...base,
