@@ -8,9 +8,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Kredix — B2B Trade & Credit Platform" },
-      { name: "description", content: "One platform for orders, invoices, credit terms, and field-staff productivity." },
+      { name: "description", content: "One platform for orders, payments, credit terms, and field-staff productivity." },
       { property: "og:title", content: "Kredix — B2B Trade & Credit Platform" },
-      { property: "og:description", content: "One platform for orders, invoices, credit terms, and field-staff productivity." },
+      { property: "og:description", content: "One platform for orders, payments, credit terms, and field-staff productivity." },
     ],
   }),
   beforeLoad: async ({ location }) => {
@@ -55,10 +55,10 @@ function Landing() {
         <section className="mx-auto max-w-6xl px-6 py-20 md:py-28">
           <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">B2B Trade &amp; Credit Management</span>
           <h1 className="mt-6 max-w-3xl text-4xl font-semibold leading-tight tracking-tight md:text-6xl">
-            Every order, invoice, and rupee outstanding — in one clear view.
+            Every order, payment, and rupee outstanding — in one clear view.
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
-            Kredix unifies your admin desk, field employees, and B2B clients. Track credit limits, approve invoices, calculate penalties, and see collections in real time.
+            Kredix unifies your admin desk, field employees, and B2B clients. Track credit limits, approve orders, calculate penalties, and see collections in real time.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg"><Link to="/auth">Sign in to your workspace</Link></Button>
@@ -79,7 +79,7 @@ function Landing() {
           <div className="mx-auto grid max-w-6xl gap-6 px-6 py-16 md:grid-cols-4">
             {[
               { i: <Users className="size-5" />, t: "Customer 360", d: "KYC, credit limit, ledger, and running balance in one panel." },
-              { i: <ClipboardList className="size-5" />, t: "Order → Invoice", d: "Punch orders, generate invoices, chase approvals." },
+              { i: <ClipboardList className="size-5" />, t: "Order → Payment", d: "Punch orders, chase approvals, collect payments." },
               { i: <Wallet className="size-5" />, t: "Credit purse", d: "Live utilization with automatic penalty accrual." },
               { i: <BarChart3 className="size-5" />, t: "Sales insights", d: "Trends, top clients, employee performance." },
             ].map((f) => (

@@ -19,8 +19,6 @@ export function notificationTarget(
   if (ORDER_TYPES.has(type) && ref) return { orderId: ref };
 
   switch (type) {
-    case "invoice":
-      return { route: role === "client" ? "/client/invoices" : "/admin/invoices" };
     case "field_visit":
       return { route: role === "employee" ? "/employee/field-visits" : "/admin/field-visits" };
     case "credit_approval":
