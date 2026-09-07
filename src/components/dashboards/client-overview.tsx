@@ -2,11 +2,9 @@ import { useRealtimeOrders } from "@/hooks/use-realtime-orders";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getClientLedger } from "@/lib/ledger.functions";
-import { listInvoices } from "@/lib/invoices.functions";
 import { listOrders } from "@/lib/orders.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { inr, fmtDate } from "@/lib/format";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { OrderReviewPanel } from "@/components/orders/order-review-panel";
@@ -21,17 +19,15 @@ import { qk } from "@/lib/query-keys";
 export function ClientOverview() {
   useRealtimeOrders();
   const ledgerFn = useServerFn(getClientLedger);
-  const invoicesFn = useServerFn(listInvoices);
   const ordersFn = useServerFn(listOrders);
   const ledger = useQuery({ queryKey: qk.ledger, queryFn: () => ledgerFn({ data: {} }) });
-  const invoices = useQuery({ queryKey: qk.invoices, queryFn: () => invoicesFn() });
   const orders = useQuery({ queryKey: qk.orders, queryFn: () => ordersFn() });
 
   const [reviewId, setReviewId] = useState<string | null>(null);
 
-  const invs = ledger.data?.invoices ?? [];
-  const outstanding = invs.reduce((s: number, i: any) => s + (Number(i.amount) - Number(i.payment_amount)), 0);
-  const openInvs = (invoices.data ?? []).filter((i: any) => i.status !== "paid" && i.status !== "declined");
+  const receivables: any[] = (ledger.data as any)?.receivables ?? [];
+  const openDues = receivables.filter((r: any) => Number(r.balance) > 0.005);
+  const outstanding = openDues.reduce((s: number, r: any) => s + Number(r.balance), 0);
   const pendingOrders = (orders.data ?? []).filter((o: any) => ["pending_client", "pending", "change_requested", "payment_pending", "payment_submitted", "out_for_delivery", "completed"].includes(o.status));
 
   // Orders explicitly awaiting this client's approval — surfaced as alert cards.
@@ -53,7 +49,7 @@ export function ClientOverview() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-xl font-semibold sm:text-2xl">Your account</h1>
-        <p className="text-sm text-muted-foreground">Orders, invoices, and running balance.</p>
+        <p className="text-sm text-muted-foreground">Orders, payments, and running balance.</p>
       </div>
 
       {awaiting.length > 0 && (
@@ -93,8 +89,8 @@ export function ClientOverview() {
           <CardContent><div className="font-display text-3xl font-semibold text-amber-600">{inr(outstanding)}</div></CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle className="text-sm">Open invoices</CardTitle></CardHeader>
-          <CardContent><div className="font-display text-3xl font-semibold">{openInvs.length}</div></CardContent>
+          <CardHeader><CardTitle className="text-sm">Open dues</CardTitle></CardHeader>
+          <CardContent><div className="font-display text-3xl font-semibold">{openDues.length}</div></CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle className="text-sm">Pending orders</CardTitle></CardHeader>
@@ -105,7 +101,7 @@ export function ClientOverview() {
       <Card>
         <CardHeader><CardTitle>Awaiting your action</CardTitle></CardHeader>
         <CardContent>
-          {pendingOrders.length === 0 && openInvs.length === 0 && (
+          {pendingOrders.length === 0 && (
             <p className="py-6 text-center text-sm text-muted-foreground">Nothing to review</p>
           )}
           <ul className="divide-y divide-border">
@@ -124,15 +120,6 @@ export function ClientOverview() {
                   <Button asChild size="sm" variant="outline"><Link to="/client/orders">Review</Link></Button>
                 )}
 
-              </li>
-            ))}
-            {openInvs.filter((i: any) => i.status === "sent").map((i: any) => (
-              <li key={i.id} className="flex items-center justify-between py-2 text-sm">
-                <div>
-                  <div className="font-medium">Invoice {i.invoice_number}</div>
-                  <div className="text-xs text-muted-foreground">Due {fmtDate(i.due_date)} · {inr(i.amount)}</div>
-                </div>
-                <Badge variant="outline">{i.status}</Badge>
               </li>
             ))}
           </ul>

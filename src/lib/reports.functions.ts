@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { buildReceivables, openReceivables, overdueReceivables, totalBalance } from "@/lib/receivables";
 
 export const adminReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -9,36 +10,48 @@ export const adminReports = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Forbidden");
     const { supabase } = context;
 
-    const [invoices, orders, payments, clients, purse] = await Promise.all([
-      supabase.from("invoices").select("id, client_id, amount, payment_amount, due_date, status, invoice_date, clients(business_name)"),
+    const [receivableOrders, orders, payments, orderPayments, clients, purse] = await Promise.all([
+      supabase
+        .from("orders")
+        .select("id, order_number, client_id, status, total_amount, order_date, delivery_date, created_at, clients(business_name)")
+        .limit(20000),
       supabase.from("orders").select("employee_id, total_amount, created_at, profiles:employee_id(name)"),
-      supabase.from("payments").select("amount"),
-      supabase.from("clients").select("id, active"),
+      supabase.from("payments").select("client_id, amount"),
+      supabase.from("order_payments").select("order_id, amount, status").eq("status", "verified"),
+      supabase.from("clients").select("id, active, business_name, credit_terms"),
       supabase.from("credit_purse").select("*"),
     ]);
 
-    const outstanding = (invoices.data ?? []).reduce((s, i) => s + (Number(i.amount) - Number(i.payment_amount)), 0);
-    const totalRevenue = (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0);
+    const termsByClient = new Map<string, number>(
+      (clients.data ?? []).map((c: any) => [c.id, Number(c.credit_terms ?? 0)] as [string, number]),
+    );
+    const rows = buildReceivables({
+      orders: (receivableOrders.data ?? []) as any,
+      orderPayments: (orderPayments.data ?? []) as any,
+      clientPayments: (payments.data ?? []) as any,
+      termsByClient,
+    });
+    const open = openReceivables(rows);
     const now = Date.now();
-    const overdue = (invoices.data ?? []).filter((i) => new Date(i.due_date).getTime() < now && Number(i.amount) > Number(i.payment_amount));
+    const overdue = overdueReceivables(rows, now);
+    const outstanding = totalBalance(open);
+    const totalRevenue = (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0)
+      + (orderPayments.data ?? []).reduce((s, p) => s + Number(p.amount), 0);
 
     const aging = { d0_30: 0, d30_60: 0, d60_plus: 0 };
     overdue.forEach((i) => {
-      const days = Math.floor((now - new Date(i.due_date).getTime()) / 864e5);
-      const out = Number(i.amount) - Number(i.payment_amount);
-      if (days <= 30) aging.d0_30 += out;
-      else if (days <= 60) aging.d30_60 += out;
-      else aging.d60_plus += out;
+      if (i.days_overdue <= 30) aging.d0_30 += i.balance;
+      else if (i.days_overdue <= 60) aging.d30_60 += i.balance;
+      else aging.d60_plus += i.balance;
     });
 
     // Top clients by outstanding
     const clientMap = new Map<string, { name: string; outstanding: number; revenue: number }>();
-    (invoices.data ?? []).forEach((i) => {
-      const key = i.client_id;
-      const cur = clientMap.get(key) ?? { name: (i as any).clients?.business_name ?? "—", outstanding: 0, revenue: 0 };
-      cur.outstanding += Number(i.amount) - Number(i.payment_amount);
-      cur.revenue += Number(i.payment_amount);
-      clientMap.set(key, cur);
+    rows.forEach((i) => {
+      const cur = clientMap.get(i.client_id) ?? { name: i.client, outstanding: 0, revenue: 0 };
+      cur.outstanding += i.balance;
+      cur.revenue += i.paid;
+      clientMap.set(i.client_id, cur);
     });
     const topClients = Array.from(clientMap.values()).sort((a, b) => b.outstanding - a.outstanding).slice(0, 10);
 
@@ -68,15 +81,15 @@ export const adminReports = createServerFn({ method: "GET" })
     return {
       kpis: {
         outstanding, totalRevenue,
-        openInvoices: (invoices.data ?? []).filter((i) => i.status !== "paid" && i.status !== "declined").length,
+        openInvoices: open.length,
         overdueCount: overdue.length,
         activeClients: (clients.data ?? []).filter((c) => c.active).length,
       },
       aging, topClients, empSales, orderTrend,
       overdueList: overdue.map((i) => ({
-        id: i.id, invoice_id: i.id, client: (i as any).clients?.business_name ?? "—",
-        amount: Number(i.amount) - Number(i.payment_amount),
-        days_overdue: Math.floor((now - new Date(i.due_date).getTime()) / 864e5),
+        id: i.id, order_id: i.order_id, order_number: i.order_number, client: i.client,
+        amount: i.balance,
+        days_overdue: i.days_overdue,
         due_date: i.due_date,
       })).sort((a, b) => b.days_overdue - a.days_overdue),
       purses: purse.data ?? [],

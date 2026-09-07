@@ -31,7 +31,6 @@ const navByRole: Record<Role, NavGroup[]> = {
       { key: "nav.newOrder", url: "/admin/orders/new", icon: Package },
       { key: "nav.products", url: "/admin/products", icon: Package },
       { key: "nav.payments", url: "/admin/payments", icon: Wallet },
-      { key: "nav.invoices", url: "/admin/invoices", icon: Receipt },
       { key: "nav.credit", url: "/admin/credit", icon: Wallet },
       { key: "nav.locations", url: "/admin/locations", icon: MapPin },
       { key: "nav.fieldVisits", url: "/admin/field-visits", icon: MapPinned },
@@ -62,7 +61,6 @@ const navByRole: Record<Role, NavGroup[]> = {
     items: [
       { key: "nav.overview", url: "/dashboard", icon: LayoutDashboard },
       { key: "nav.orders", url: "/client/orders", icon: Package },
-      { key: "nav.invoices", url: "/client/invoices", icon: Receipt },
       { key: "nav.ledger", url: "/client/ledger", icon: FileText },
       { key: "nav.profile", url: "/client/profile", icon: User },
       { key: "nav.history", url: "/history", icon: History },

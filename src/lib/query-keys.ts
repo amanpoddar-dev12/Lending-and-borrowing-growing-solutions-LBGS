@@ -33,7 +33,6 @@ export const qk = {
   orderWorkflow: (orderId: string | null) => ["order-workflow", orderId] as const,
   orderDelivery: (orderId: string | null) => ["order-delivery", orderId] as const,
 
-  invoices: ["invoices"] as const,
   payments: ["payments"] as const,
   ledger: ["ledger"] as const,
   products: ["products"] as const,
@@ -71,7 +70,6 @@ export const STALE_TIMES: Array<[readonly unknown[], number]> = [
   [["orders"], 45_000],
   [["order-workflow"], 30_000],
   [["order-delivery"], 30_000],
-  [["invoices"], 60_000],
   [["payments"], 45_000],
   [["ledger"], 60_000],
   [["duty"], 60_000],

@@ -113,7 +113,7 @@ const KPI_META: Record<string, { label: string; hint: string; invert?: boolean }
   aov: { label: "Average order value", hint: "Order value booked ÷ number of orders." },
   collected: { label: "Payments collected", hint: "Payments recorded against clients in the period." },
   pendingPayments: { label: "Payments awaiting review", hint: "Client-submitted payments not yet verified.", invert: true },
-  invoicedAmount: { label: "Invoiced amount", hint: "Invoices raised in the period." },
+  billedAmount: { label: "Billed amount", hint: "Order value becoming due in the period." },
   newClients: { label: "New clients", hint: "Client accounts created in the period." },
   activeClients: { label: "Active clients", hint: "Clients that placed at least one order in the period." },
   tasksCompleted: { label: "Tasks completed", hint: "Employee tasks closed in the period." },
@@ -310,7 +310,7 @@ function AnalyticsPage() {
             {/* -------------------------------------------------- overview */}
             <TabsContent value="overview" className="mt-4 space-y-4">
               <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {["completionRate", "collectionEfficiency", "avgProcessingDays", "revenuePerEmployee", "newClients", "activeClients", "invoicedAmount", "tasksCompleted"].map((k) => (
+                {["completionRate", "collectionEfficiency", "avgProcessingDays", "revenuePerEmployee", "newClients", "activeClients", "billedAmount", "tasksCompleted"].map((k) => (
                   <KpiCard key={k} kpi={kpiMap[k]} mode={compareMode} compact />
                 ))}
               </section>
@@ -338,7 +338,7 @@ function AnalyticsPage() {
 
             {/* --------------------------------------------------- revenue */}
             <TabsContent value="revenue" className="mt-4 space-y-4">
-              <MoMYoYTable rows={["revenue", "grossOrderValue", "aov", "collected", "invoicedAmount"].map((k) => kpiMap[k])} />
+              <MoMYoYTable rows={["revenue", "grossOrderValue", "aov", "collected", "billedAmount"].map((k) => kpiMap[k])} />
               <div className="grid gap-4 lg:grid-cols-2">
                 <ChartCard title="Revenue trend" empty={data.series.length === 0}><RevenueAreaChart data={data.series} /></ChartCard>
                 <ChartCard title="Average order value trend" empty={data.series.length === 0}><AovLineChart data={data.series} /></ChartCard>
@@ -394,8 +394,8 @@ function AnalyticsPage() {
               <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <KpiCard kpi={kpiMap.collected} mode={compareMode} compact />
                 <KpiCard kpi={kpiMap.pendingPayments} mode={compareMode} compact />
-                <StaticCard label="Outstanding receivable" value={inr(data.statics.outstanding)} hint="Unpaid balance across every open invoice (not period-bound)." />
-                <StaticCard label="Overdue" value={inr(data.statics.overdueAmount)} sub={`${data.statics.overdueCount} invoices`} hint="Open invoices past their due date." />
+                <StaticCard label="Outstanding receivable" value={inr(data.statics.outstanding)} hint="Unpaid balance across every open order (not period-bound)." />
+                <StaticCard label="Overdue" value={inr(data.statics.overdueAmount)} sub={`${data.statics.overdueCount} orders`} hint="Open orders past their due date." />
                 <StaticCard
                   label="Payment success rate"
                   value={data.statics.paymentSuccessRate == null ? NA : `${data.statics.paymentSuccessRate.toFixed(1)}%`}
@@ -403,8 +403,8 @@ function AnalyticsPage() {
                   hint="Verified ÷ reviewed client payment submissions."
                 />
                 <KpiCard kpi={kpiMap.collectionEfficiency} mode={compareMode} compact />
-                <KpiCard kpi={kpiMap.invoicedAmount} mode={compareMode} compact />
-                <StaticCard label="Open invoices" value={compactNum(data.statics.openInvoiceCount)} hint="Invoices with a remaining balance." />
+                <KpiCard kpi={kpiMap.billedAmount} mode={compareMode} compact />
+                <StaticCard label="Open dues" value={compactNum(data.statics.openInvoiceCount)} hint="Orders with a remaining balance." />
               </section>
               <div className="grid gap-4 lg:grid-cols-2">
                 <ChartCard title="Collections over time" empty={data.series.every((s: any) => !s.collected)}>
@@ -656,7 +656,7 @@ function HealthPanel({ data, kpiMap, mode }: { data: any; kpiMap: Record<string,
 
   const actions: string[] = [];
   if (data.statics.overdueAmount > 0)
-    actions.push(`Chase ${inr(data.statics.overdueAmount)} across ${data.statics.overdueCount} overdue invoices.`);
+    actions.push(`Chase ${inr(data.statics.overdueAmount)} across ${data.statics.overdueCount} overdue orders.`);
   if (kpiMap.pendingPayments?.value > 0)
     actions.push(`${inr(kpiMap.pendingPayments.value)} of client payments are waiting on verification.`);
   if (kpiMap.pendingOrders?.value > 0)
@@ -739,7 +739,7 @@ const paymentCols: Column<any>[] = [
 ];
 
 const outstandingCols: Column<any>[] = [
-  { key: "invoice_number", label: "Invoice" },
+  { key: "order_number", label: "Order" },
   { key: "client", label: "Client" },
   { key: "due_date", label: "Due", render: (r) => fmtDate(r.due_date) },
   { key: "days_overdue", label: "Overdue", align: "right", render: (r) => (r.days_overdue > 0 ? <Badge variant="destructive">{r.days_overdue} d</Badge> : <span className="text-muted-foreground">—</span>) },

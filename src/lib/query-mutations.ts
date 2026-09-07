@@ -13,7 +13,6 @@ export type MutationScope =
   | "orderReview"
   | "payment"
   | "delivery"
-  | "invoice"
   | "client"
   | "clientAssignment"
   | "product"
@@ -53,8 +52,6 @@ export function invalidateFor(
       );
       if (orderId) keys.push(qk.orderWorkflow(orderId), qk.orderDelivery(orderId));
       break;
-    case "invoice":
-      keys.push(qk.invoices, qk.ledger, qk.pendingTasks, qk.activityHistory(), qk.adminReports);
       break;
     case "client":
       keys.push(qk.clients, qk.creditRequests, qk.notifications, qk.pendingTasks);

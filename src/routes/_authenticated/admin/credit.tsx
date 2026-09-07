@@ -40,9 +40,6 @@ const EVENT_LABELS: Record<string, string> = {
   "order.payment_verified": "Payment verified",
   "order.paid": "Payment completed",
   "order.deleted": "Order removed",
-  "invoices.insert": "Invoice issued",
-  "invoices.update": "Invoice updated",
-  "invoices.delete": "Invoice removed",
   "payments.insert": "Payment recorded",
   "payments.update": "Payment updated",
   "payments.delete": "Payment reversed",
@@ -92,7 +89,7 @@ function Credit() {
       <div>
         <h1 className="font-display text-xl font-semibold sm:text-2xl">Credit purse</h1>
         <p className="text-sm text-muted-foreground">
-          Live utilization per client — outstanding invoices plus orders not yet invoiced.
+          Live utilization per client — order value outstanding after payments received.
         </p>
       </div>
 

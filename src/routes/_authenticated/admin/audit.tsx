@@ -265,7 +265,7 @@ function Audit() {
               <Input
                 value={q}
                 onChange={(e) => { setQ(e.target.value); setPage(1); }}
-                placeholder="Search by user, action, record ID, invoice #, remarks…"
+                placeholder="Search by user, action, record ID, order #, remarks…"
                 className="pl-9"
               />
             </div>

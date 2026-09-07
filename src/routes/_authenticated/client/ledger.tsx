@@ -13,9 +13,9 @@ export const Route = createFileRoute("/_authenticated/client/ledger")({
   head: () => ({
     meta: [
       { title: "Ledger — Kredix" },
-      { name: "description", content: "Running balance across invoices and payments." },
+      { name: "description", content: "Running balance across orders and payments." },
       { property: "og:title", content: "Ledger — Kredix" },
-      { property: "og:description", content: "Running balance across invoices and payments." },
+      { property: "og:description", content: "Running balance across orders and payments." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -25,23 +25,33 @@ export const Route = createFileRoute("/_authenticated/client/ledger")({
 function Ledger() {
   const fn = useServerFn(getClientLedger);
   const { data } = useQuery({ queryKey: qk.ledger, queryFn: () => fn({ data: {} }) });
-  const invs = (data?.invoices ?? []).map((i: any) => ({
-    date: i.invoice_date,
-    type: "Invoice",
-    ref: i.invoice_number,
-    debit: Number(i.amount ?? 0),
+  const debits = (data?.receivables ?? []).map((r: any) => ({
+    date: r.due_date,
+    type: "Order",
+    ref: r.order_number ?? "—",
+    debit: Number(r.amount ?? 0),
     credit: 0,
-    interest: Number(i.penalty_amount ?? 0),
-  }));
-  const pays = (data?.payments ?? []).map((p: any) => ({
-    date: p.payment_date,
-    type: "Payment",
-    ref: p.invoices?.invoice_number ?? "—",
-    debit: 0,
-    credit: Number(p.amount ?? 0),
     interest: 0,
   }));
-  const rows = [...invs, ...pays].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const pays = [
+    ...(data?.payments ?? []).map((p: any) => ({
+      date: p.payment_date,
+      type: "Payment",
+      ref: "—",
+      debit: 0,
+      credit: Number(p.amount ?? 0),
+      interest: 0,
+    })),
+    ...((data as any)?.orderPayments ?? []).map((p: any) => ({
+      date: p.reviewed_at ?? p.submitted_at,
+      type: "Payment",
+      ref: p.orders?.order_number ?? "—",
+      debit: 0,
+      credit: Number(p.amount ?? 0),
+      interest: 0,
+    })),
+  ];
+  const rows = [...debits, ...pays].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   let bal = 0;
   const withBal = rows.map((r) => { bal += r.debit + r.interest - r.credit; return { ...r, balance: bal }; });
 

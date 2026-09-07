@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listOrders, updateOrderStatus } from "@/lib/orders.functions";
 import { submitOrderForClient } from "@/lib/order-workflow.functions";
-import { generateInvoiceFromOrder } from "@/lib/invoices.functions";
 import { getMe } from "@/lib/me.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,6 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
   const meFn = useServerFn(getMe);
   const statusFn = useServerFn(updateOrderStatus);
   const submitFn = useServerFn(submitOrderForClient);
-  const invFn = useServerFn(generateInvoiceFromOrder);
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -57,11 +55,6 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
     onError: (e: any, _id, ctx) => { if (ctx?.prev) qc.setQueryData(qk.orders as unknown as unknown[], ctx.prev); toast.error(e.message); },
     onSuccess: () => toast.success("Sent to client for approval"),
     onSettled: () => invalidateFor(qc, "order"),
-  });
-  const invoice = useMutation({
-    mutationFn: (id: string) => invFn({ data: { order_id: id } }),
-    onSuccess: () => { invalidateFor(qc, "order"); invalidateFor(qc, "invoice"); toast.success("Invoice generated"); },
-    onError: (e: any) => toast.error(e.message),
   });
 
   const filtered = useMemo(() => {
@@ -99,9 +92,6 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
         <>
           {o.status === "pending" && (
             <Button size="sm" onClick={() => setStatus.mutate({ id: o.id, status: "confirmed" })}>Confirm</Button>
-          )}
-          {(o.status === "confirmed" || o.status === "client_approved" || o.status === "completed") && (
-            <Button size="sm" onClick={() => invoice.mutate(o.id)}>Generate invoice</Button>
           )}
         </>
       )}

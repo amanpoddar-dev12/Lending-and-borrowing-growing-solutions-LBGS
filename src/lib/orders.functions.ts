@@ -143,7 +143,7 @@ export const respondToOrder = createServerFn({ method: "POST" })
 export const updateOrderStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string; status: string }) =>
-    z.object({ id: z.string().uuid(), status: z.enum(["pending","confirmed","declined","change_requested","invoiced","paid"]) }).parse(d),
+    z.object({ id: z.string().uuid(), status: z.enum(["pending","confirmed","declined","change_requested","paid"]) }).parse(d),
   )
   .handler(async ({ data, context }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });

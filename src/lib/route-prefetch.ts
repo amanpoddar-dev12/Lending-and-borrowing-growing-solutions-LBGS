@@ -4,7 +4,6 @@ import { listClients } from "@/lib/clients.functions";
 import { listEmployees, listEmployeeActivity } from "@/lib/employees.functions";
 import { listOrders } from "@/lib/orders.functions";
 import { listProducts } from "@/lib/products.functions";
-import { listInvoices } from "@/lib/invoices.functions";
 import { listEmployeeLatestLocations, getMyDutyStatus } from "@/lib/duty.functions";
 import { listAuditLogs, adminReports } from "@/lib/reports.functions";
 import { listTasks } from "@/lib/tasks.functions";
@@ -15,7 +14,6 @@ type Entry = { queryKey: readonly unknown[]; queryFn: () => Promise<unknown> };
 
 const clients: Entry = { queryKey: qk.clients, queryFn: () => listClients() as any };
 const orders: Entry = { queryKey: qk.orders, queryFn: () => listOrders() as any };
-const invoices: Entry = { queryKey: qk.invoices, queryFn: () => listInvoices() as any };
 const products: Entry = { queryKey: qk.products, queryFn: () => listProducts() as any };
 
 const map: Record<string, Entry[]> = {
@@ -26,7 +24,6 @@ const map: Record<string, Entry[]> = {
   "/admin/activity": [{ queryKey: qk.employeeActivity, queryFn: () => listEmployeeActivity() as any }],
   "/admin/orders": [orders],
   "/admin/products": [products],
-  "/admin/invoices": [invoices],
   "/admin/locations": [{ queryKey: qk.locations, queryFn: () => listEmployeeLatestLocations() as any }],
   "/admin/audit": [{ queryKey: qk.audit(), queryFn: () => listAuditLogs({ data: { from: null, to: null } }) as any }],
   "/employee/clients": [clients],
@@ -36,7 +33,6 @@ const map: Record<string, Entry[]> = {
   "/employee/tasks": [{ queryKey: qk.tasks, queryFn: () => listTasks() as any }],
   "/employee/duty": [{ queryKey: qk.duty, queryFn: () => getMyDutyStatus() as any }],
   "/client/orders": [orders],
-  "/client/invoices": [invoices],
   "/client/ledger": [{ queryKey: qk.ledger, queryFn: () => getClientLedger({ data: {} }) as any }],
   "/client/profile": [clients],
   "/settings": [{ queryKey: qk.userSettings, queryFn: () => getUserSettings() as any }],
@@ -51,7 +47,6 @@ const dashboardByRole: Record<string, Entry[]> = {
   ],
   client: [
     { queryKey: qk.ledger, queryFn: () => getClientLedger({ data: {} }) as any },
-    invoices,
     orders,
   ],
 };
