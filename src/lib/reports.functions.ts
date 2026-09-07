@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { buildReceivables, openReceivables, overdueReceivables, totalBalance } from "@/lib/receivables";
 
 export const adminReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
