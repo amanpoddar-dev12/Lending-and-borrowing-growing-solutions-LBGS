@@ -26,13 +26,11 @@ import { Route as AuthenticatedEmployeeClientsRouteImport } from './routes/_auth
 import { Route as AuthenticatedClientProfileRouteImport } from './routes/_authenticated/client/profile'
 import { Route as AuthenticatedClientOrdersRouteImport } from './routes/_authenticated/client/orders'
 import { Route as AuthenticatedClientLedgerRouteImport } from './routes/_authenticated/client/ledger'
-import { Route as AuthenticatedClientInvoicesRouteImport } from './routes/_authenticated/client/invoices'
 import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authenticated/admin/products'
 import { Route as AuthenticatedAdminPayslipsRouteImport } from './routes/_authenticated/admin/payslips'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
 import { Route as AuthenticatedAdminLocationsRouteImport } from './routes/_authenticated/admin/locations'
-import { Route as AuthenticatedAdminInvoicesRouteImport } from './routes/_authenticated/admin/invoices'
 import { Route as AuthenticatedAdminFieldVisitsRouteImport } from './routes/_authenticated/admin/field-visits'
 import { Route as AuthenticatedAdminEmployeesRouteImport } from './routes/_authenticated/admin/employees'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin/customers'
@@ -140,12 +138,6 @@ const AuthenticatedClientLedgerRoute =
     path: '/client/ledger',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedClientInvoicesRoute =
-  AuthenticatedClientInvoicesRouteImport.update({
-    id: '/client/invoices',
-    path: '/client/invoices',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdminProductsRoute =
   AuthenticatedAdminProductsRouteImport.update({
     id: '/admin/products',
@@ -174,12 +166,6 @@ const AuthenticatedAdminLocationsRoute =
   AuthenticatedAdminLocationsRouteImport.update({
     id: '/admin/locations',
     path: '/admin/locations',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAdminInvoicesRoute =
-  AuthenticatedAdminInvoicesRouteImport.update({
-    id: '/admin/invoices',
-    path: '/admin/invoices',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminFieldVisitsRoute =
@@ -269,13 +255,11 @@ export interface FileRoutesByFullPath {
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/field-visits': typeof AuthenticatedAdminFieldVisitsRoute
-  '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/locations': typeof AuthenticatedAdminLocationsRouteWithChildren
   '/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/payslips': typeof AuthenticatedAdminPayslipsRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
-  '/client/invoices': typeof AuthenticatedClientInvoicesRoute
   '/client/ledger': typeof AuthenticatedClientLedgerRoute
   '/client/orders': typeof AuthenticatedClientOrdersRoute
   '/client/profile': typeof AuthenticatedClientProfileRoute
@@ -306,12 +290,10 @@ export interface FileRoutesByTo {
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/field-visits': typeof AuthenticatedAdminFieldVisitsRoute
-  '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/locations': typeof AuthenticatedAdminLocationsRouteWithChildren
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/payslips': typeof AuthenticatedAdminPayslipsRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
-  '/client/invoices': typeof AuthenticatedClientInvoicesRoute
   '/client/ledger': typeof AuthenticatedClientLedgerRoute
   '/client/orders': typeof AuthenticatedClientOrdersRoute
   '/client/profile': typeof AuthenticatedClientProfileRoute
@@ -344,13 +326,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/_authenticated/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/_authenticated/admin/field-visits': typeof AuthenticatedAdminFieldVisitsRoute
-  '/_authenticated/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/_authenticated/admin/locations': typeof AuthenticatedAdminLocationsRouteWithChildren
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/payslips': typeof AuthenticatedAdminPayslipsRoute
   '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
-  '/_authenticated/client/invoices': typeof AuthenticatedClientInvoicesRoute
   '/_authenticated/client/ledger': typeof AuthenticatedClientLedgerRoute
   '/_authenticated/client/orders': typeof AuthenticatedClientOrdersRoute
   '/_authenticated/client/profile': typeof AuthenticatedClientProfileRoute
@@ -383,13 +363,11 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/employees'
     | '/admin/field-visits'
-    | '/admin/invoices'
     | '/admin/locations'
     | '/admin/orders'
     | '/admin/payments'
     | '/admin/payslips'
     | '/admin/products'
-    | '/client/invoices'
     | '/client/ledger'
     | '/client/orders'
     | '/client/profile'
@@ -420,12 +398,10 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/employees'
     | '/admin/field-visits'
-    | '/admin/invoices'
     | '/admin/locations'
     | '/admin/payments'
     | '/admin/payslips'
     | '/admin/products'
-    | '/client/invoices'
     | '/client/ledger'
     | '/client/orders'
     | '/client/profile'
@@ -457,13 +433,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/customers'
     | '/_authenticated/admin/employees'
     | '/_authenticated/admin/field-visits'
-    | '/_authenticated/admin/invoices'
     | '/_authenticated/admin/locations'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/payslips'
     | '/_authenticated/admin/products'
-    | '/_authenticated/client/invoices'
     | '/_authenticated/client/ledger'
     | '/_authenticated/client/orders'
     | '/_authenticated/client/profile'
@@ -608,13 +582,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientLedgerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/client/invoices': {
-      id: '/_authenticated/client/invoices'
-      path: '/client/invoices'
-      fullPath: '/client/invoices'
-      preLoaderRoute: typeof AuthenticatedClientInvoicesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin/products': {
       id: '/_authenticated/admin/products'
       path: '/admin/products'
@@ -648,13 +615,6 @@ declare module '@tanstack/react-router' {
       path: '/admin/locations'
       fullPath: '/admin/locations'
       preLoaderRoute: typeof AuthenticatedAdminLocationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/admin/invoices': {
-      id: '/_authenticated/admin/invoices'
-      path: '/admin/invoices'
-      fullPath: '/admin/invoices'
-      preLoaderRoute: typeof AuthenticatedAdminInvoicesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/field-visits': {
@@ -787,13 +747,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
   AuthenticatedAdminEmployeesRoute: typeof AuthenticatedAdminEmployeesRoute
   AuthenticatedAdminFieldVisitsRoute: typeof AuthenticatedAdminFieldVisitsRoute
-  AuthenticatedAdminInvoicesRoute: typeof AuthenticatedAdminInvoicesRoute
   AuthenticatedAdminLocationsRoute: typeof AuthenticatedAdminLocationsRouteWithChildren
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRouteWithChildren
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
   AuthenticatedAdminPayslipsRoute: typeof AuthenticatedAdminPayslipsRoute
   AuthenticatedAdminProductsRoute: typeof AuthenticatedAdminProductsRoute
-  AuthenticatedClientInvoicesRoute: typeof AuthenticatedClientInvoicesRoute
   AuthenticatedClientLedgerRoute: typeof AuthenticatedClientLedgerRoute
   AuthenticatedClientOrdersRoute: typeof AuthenticatedClientOrdersRoute
   AuthenticatedClientProfileRoute: typeof AuthenticatedClientProfileRoute
@@ -819,14 +777,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
   AuthenticatedAdminEmployeesRoute: AuthenticatedAdminEmployeesRoute,
   AuthenticatedAdminFieldVisitsRoute: AuthenticatedAdminFieldVisitsRoute,
-  AuthenticatedAdminInvoicesRoute: AuthenticatedAdminInvoicesRoute,
   AuthenticatedAdminLocationsRoute:
     AuthenticatedAdminLocationsRouteWithChildren,
   AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRouteWithChildren,
   AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
   AuthenticatedAdminPayslipsRoute: AuthenticatedAdminPayslipsRoute,
   AuthenticatedAdminProductsRoute: AuthenticatedAdminProductsRoute,
-  AuthenticatedClientInvoicesRoute: AuthenticatedClientInvoicesRoute,
   AuthenticatedClientLedgerRoute: AuthenticatedClientLedgerRoute,
   AuthenticatedClientOrdersRoute: AuthenticatedClientOrdersRoute,
   AuthenticatedClientProfileRoute: AuthenticatedClientProfileRoute,
