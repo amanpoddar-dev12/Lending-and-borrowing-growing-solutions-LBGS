@@ -7,9 +7,9 @@ import { BarChart3, Users, ClipboardList, Wallet } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kredix — B2B Trade & Credit Platform" },
+      { title: "Lending and Borrowing Growing Solutions — B2B Trade & Credit Platform" },
       { name: "description", content: "One platform for orders, payments, credit terms, and field-staff productivity." },
-      { property: "og:title", content: "Kredix — B2B Trade & Credit Platform" },
+      { property: "og:title", content: "Lending and Borrowing Growing Solutions — B2B Trade & Credit Platform" },
       { property: "og:description", content: "One platform for orders, payments, credit terms, and field-staff productivity." },
     ],
   }),
@@ -35,8 +35,8 @@ function Landing() {
       <header className="border-b border-border/60">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground font-bold">K</div>
-            <span className="font-display text-lg font-semibold">Kredix</span>
+            <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground font-bold">LBGS</div>
+            <span className="font-display text-lg font-semibold">LBGS</span>
           </div>
           <nav className="flex items-center gap-3">
             {authed ? (
@@ -58,7 +58,7 @@ function Landing() {
             Every order, payment, and rupee outstanding — in one clear view.
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
-            Kredix unifies your admin desk, field employees, and B2B clients. Track credit limits, approve orders, calculate penalties, and see collections in real time.
+            Lending and Borrowing Growing Solutions unifies your admin desk, field employees, and B2B clients. Track credit limits, approve orders, calculate penalties, and see collections in real time.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg"><Link to="/auth">Sign in to your workspace</Link></Button>
@@ -95,7 +95,7 @@ function Landing() {
 
       <footer className="border-t border-border/60">
         <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Kredix. Built with Lovable.
+          © {new Date().getFullYear()} Lending and Borrowing Growing Solutions.
         </div>
       </footer>
     </div>

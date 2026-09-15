@@ -12,9 +12,9 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/admin/activity")({
   head: () => ({
     meta: [
-      { title: "Employee activity — Kredix" },
+      { title: "Employee activity — LBGS" },
       { name: "description", content: "Live view of every employee: duty status, latest location, orders, and tasks." },
-      { property: "og:title", content: "Employee activity — Kredix" },
+      { property: "og:title", content: "Employee activity — LBGS" },
       { property: "og:description", content: "Live view of every employee: duty status, latest location, orders, and tasks." },
       { name: "robots", content: "noindex" },
     ],

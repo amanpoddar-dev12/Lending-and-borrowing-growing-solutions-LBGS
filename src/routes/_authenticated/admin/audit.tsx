@@ -32,9 +32,9 @@ import {
 export const Route = createFileRoute("/_authenticated/admin/audit")({
   head: () => ({
     meta: [
-      { title: "Audit log — Kredix" },
+      { title: "Audit log — LBGS" },
       { name: "description", content: "Enterprise audit trail for compliance, GST, and reconciliation." },
-      { property: "og:title", content: "Audit log — Kredix" },
+      { property: "og:title", content: "Audit log — LBGS" },
       { property: "og:description", content: "Enterprise audit trail for compliance, GST, and reconciliation." },
       { name: "robots", content: "noindex" },
     ],

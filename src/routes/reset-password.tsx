@@ -10,10 +10,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Reset password — Kredix" },
-      { name: "description", content: "Set a new password for your Kredix account." },
-      { property: "og:title", content: "Reset password — Kredix" },
-      { property: "og:description", content: "Set a new password for your Kredix account." },
+      { title: "Reset password — LBGS" },
+      { name: "description", content: "Set a new password for your LBGS account." },
+      { property: "og:title", content: "Reset password — LBGS" },
+      { property: "og:description", content: "Set a new password for your LBGS account." },
       { name: "robots", content: "noindex" },
     ],
   }),

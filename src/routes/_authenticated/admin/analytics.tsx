@@ -27,9 +27,9 @@ const HorizontalBarChart = lazy(() => import("@/components/analytics/analytics-c
 export const Route = createFileRoute("/_authenticated/admin/analytics")({
   head: () => ({
     meta: [
-      { title: "Business analytics — Kredix" },
+      { title: "Business analytics — LBGS" },
       { name: "description", content: "Revenue, orders, payments, clients and workforce analytics with MoM and YoY comparisons." },
-      { property: "og:title", content: "Business analytics — Kredix" },
+      { property: "og:title", content: "Business analytics — LBGS" },
       { property: "og:description", content: "Revenue, orders, payments, clients and workforce analytics with MoM and YoY comparisons." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

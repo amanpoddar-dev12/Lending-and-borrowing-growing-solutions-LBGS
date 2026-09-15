@@ -17,10 +17,10 @@ import { IN_PHONE_REGEX, IN_PHONE_MESSAGE, normalizeIndianPhone } from "@/lib/ph
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Kredix" },
-      { name: "description", content: "Sign in to your Kredix workspace with your mobile number." },
-      { property: "og:title", content: "Sign in — Kredix" },
-      { property: "og:description", content: "Sign in to your Kredix workspace with your mobile number." },
+      { title: "Sign in — LBGS" },
+      { name: "description", content: "Sign in to your LBGS workspace with your mobile number." },
+      { property: "og:title", content: "Sign in — LBGS" },
+      { property: "og:description", content: "Sign in to your LBGS workspace with your mobile number." },
       { name: "robots", content: "noindex" },
     ],
   }),

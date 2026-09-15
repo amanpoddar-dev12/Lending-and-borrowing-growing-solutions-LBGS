@@ -18,9 +18,9 @@ import { invalidateFor } from "@/lib/query-mutations";
 export const Route = createFileRoute("/_authenticated/admin/products")({
   head: () => ({
     meta: [
-      { title: "Products — Kredix" },
+      { title: "Products — LBGS" },
       { name: "description", content: "Manage the product catalog for order punching." },
-      { property: "og:title", content: "Products — Kredix" },
+      { property: "og:title", content: "Products — LBGS" },
       { property: "og:description", content: "Manage the product catalog for order punching." },
       { name: "robots", content: "noindex" },
     ],

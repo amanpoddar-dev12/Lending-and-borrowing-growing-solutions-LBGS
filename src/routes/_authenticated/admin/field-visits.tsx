@@ -33,9 +33,9 @@ import { fmtDateTime } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/admin/field-visits")({
   head: () => ({
     meta: [
-      { title: "Field visits — Kredix" },
+      { title: "Field visits — LBGS" },
       { name: "description", content: "Assign and track employee field-visit reminders." },
-      { property: "og:title", content: "Field visits — Kredix" },
+      { property: "og:title", content: "Field visits — LBGS" },
       { property: "og:description", content: "Assign and track employee field-visit reminders." },
       { name: "robots", content: "noindex" },
     ],

@@ -11,9 +11,9 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/client/profile")({
   head: () => ({
     meta: [
-      { title: "Profile & KYC — Kredix" },
+      { title: "Profile & KYC — LBGS" },
       { name: "description", content: "Your business details, KYC status, and credit terms." },
-      { property: "og:title", content: "Profile & KYC — Kredix" },
+      { property: "og:title", content: "Profile & KYC — LBGS" },
       { property: "og:description", content: "Your business details, KYC status, and credit terms." },
       { name: "robots", content: "noindex" },
     ],

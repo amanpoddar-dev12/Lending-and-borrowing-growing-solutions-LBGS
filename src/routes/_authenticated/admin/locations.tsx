@@ -13,9 +13,9 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/admin/locations")({
   head: () => ({
     meta: [
-      { title: "Locations — Kredix" },
+      { title: "Locations — LBGS" },
       { name: "description", content: "Latest known location for each field employee." },
-      { property: "og:title", content: "Locations — Kredix" },
+      { property: "og:title", content: "Locations — LBGS" },
       { property: "og:description", content: "Latest known location for each field employee." },
       { name: "robots", content: "noindex" },
     ],

@@ -9,10 +9,10 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Kredix" },
-      { name: "description", content: "Your Kredix workspace overview." },
-      { property: "og:title", content: "Dashboard — Kredix" },
-      { property: "og:description", content: "Your Kredix workspace overview." },
+      { title: "Dashboard — LBGS" },
+      { name: "description", content: "Your LBGS workspace overview." },
+      { property: "og:title", content: "Dashboard — LBGS" },
+      { property: "og:description", content: "Your LBGS workspace overview." },
       { name: "robots", content: "noindex" },
     ],
   }),

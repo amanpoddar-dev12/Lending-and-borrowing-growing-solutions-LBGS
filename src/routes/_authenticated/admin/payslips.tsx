@@ -22,9 +22,9 @@ import { Loader2, Trash2 } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/admin/payslips")({
   head: () => ({
     meta: [
-      { title: "Payslips — Kredix" },
+      { title: "Payslips — LBGS" },
       { name: "description", content: "Generate and manage employee payslips." },
-      { property: "og:title", content: "Payslips — Kredix" },
+      { property: "og:title", content: "Payslips — LBGS" },
       { property: "og:description", content: "Generate and manage employee payslips." },
       { name: "robots", content: "noindex" },
     ],
