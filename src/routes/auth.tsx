@@ -17,10 +17,10 @@ import { IN_PHONE_REGEX, IN_PHONE_MESSAGE, normalizeIndianPhone } from "@/lib/ph
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Kredix" },
-      { name: "description", content: "Sign in to your Kredix workspace with your mobile number." },
-      { property: "og:title", content: "Sign in — Kredix" },
-      { property: "og:description", content: "Sign in to your Kredix workspace with your mobile number." },
+      { title: "Sign in — LBGS" },
+      { name: "description", content: "Sign in to your LBGS workspace with your mobile number." },
+      { property: "og:title", content: "Sign in — LBGS" },
+      { property: "og:description", content: "Sign in to your LBGS workspace with your mobile number." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -145,8 +145,8 @@ function AuthPage() {
     <div className="grid min-h-screen place-items-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 grid size-10 place-items-center rounded-md bg-primary text-primary-foreground font-bold">
-            K
+          <div className="mx-auto mb-2 grid size-10 place-items-center rounded-md bg-primary text-[10px] font-bold tracking-tight text-primary-foreground">
+            LBGS
           </div>
           <CardTitle className="font-display text-2xl">{t("auth.welcome")}</CardTitle>
           <CardDescription>

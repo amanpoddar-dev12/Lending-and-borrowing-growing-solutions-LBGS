@@ -12,9 +12,9 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/employee/payslips")({
   head: () => ({
     meta: [
-      { title: "My payslips — Kredix" },
+      { title: "My payslips — LBGS" },
       { name: "description", content: "View your monthly salary payslips." },
-      { property: "og:title", content: "My payslips — Kredix" },
+      { property: "og:title", content: "My payslips — LBGS" },
       { property: "og:description", content: "View your monthly salary payslips." },
       { name: "robots", content: "noindex" },
     ],

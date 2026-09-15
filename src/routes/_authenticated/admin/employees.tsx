@@ -24,9 +24,9 @@ import { IN_PHONE_REGEX, normalizeIndianPhone } from "@/lib/phone";
 export const Route = createFileRoute("/_authenticated/admin/employees")({
   head: () => ({
     meta: [
-      { title: "Employees — Kredix" },
+      { title: "Employees — LBGS" },
       { name: "description", content: "Manage field employees, limits, and commission." },
-      { property: "og:title", content: "Employees — Kredix" },
+      { property: "og:title", content: "Employees — LBGS" },
       { property: "og:description", content: "Manage field employees, limits, and commission." },
       { name: "robots", content: "noindex" },
     ],

@@ -151,9 +151,9 @@ function PaymentsPage() {
 export const Route = createFileRoute("/_authenticated/admin/payments")({
   head: () => ({
     meta: [
-      { title: "Payment verification — Kredix" },
+      { title: "Payment verification — LBGS" },
       { name: "description", content: "Review client payment proofs and unlock order delivery." },
-      { property: "og:title", content: "Payment verification — Kredix" },
+      { property: "og:title", content: "Payment verification — LBGS" },
       { property: "og:description", content: "Review client payment proofs and unlock order delivery." },
       { name: "robots", content: "noindex" },
     ],

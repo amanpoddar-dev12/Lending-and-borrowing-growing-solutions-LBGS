@@ -87,10 +87,10 @@ export function AppSidebar({ role, name }: { role: Role; name: string }) {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 p-2">
-          <div className="grid size-8 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground font-bold">K</div>
+          <div className="grid size-8 shrink-0 place-items-center rounded-md bg-sidebar-primary text-[9px] font-bold tracking-tight text-sidebar-primary-foreground">LBGS</div>
           {!collapsed && (
             <div className="flex flex-col overflow-hidden">
-              <span className="truncate font-display text-sm font-semibold">Kredix</span>
+              <span className="truncate font-display text-sm font-semibold">LBGS</span>
               <span className="truncate text-xs text-muted-foreground">{name}</span>
             </div>
           )}

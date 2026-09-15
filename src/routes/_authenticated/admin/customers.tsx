@@ -39,9 +39,9 @@ import { invalidateFor } from "@/lib/query-mutations";
 export const Route = createFileRoute("/_authenticated/admin/customers")({
   head: () => ({
     meta: [
-      { title: "Customers — Kredix" },
+      { title: "Customers — LBGS" },
       { name: "description", content: "Manage clients, KYC, credit limits, and credit terms." },
-      { property: "og:title", content: "Customers — Kredix" },
+      { property: "og:title", content: "Customers — LBGS" },
       { property: "og:description", content: "Manage clients, KYC, credit limits, and credit terms." },
       { name: "robots", content: "noindex" },
     ],

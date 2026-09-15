@@ -12,9 +12,9 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/client/ledger")({
   head: () => ({
     meta: [
-      { title: "Ledger — Kredix" },
+      { title: "Ledger — LBGS" },
       { name: "description", content: "Running balance across orders and payments." },
-      { property: "og:title", content: "Ledger — Kredix" },
+      { property: "og:title", content: "Ledger — LBGS" },
       { property: "og:description", content: "Running balance across orders and payments." },
       { name: "robots", content: "noindex" },
     ],

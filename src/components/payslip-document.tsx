@@ -2,10 +2,10 @@ import { inr, fmtDate } from "@/lib/format";
 import { EARNING_KEYS } from "@/lib/payslips.functions";
 
 export const COMPANY = {
-  name: "Kredix Trading Pvt. Ltd.",
+  name: "Lending and Borrowing Growing Solutions",
   address: "2nd Floor, Trade Centre, MG Road, Bengaluru 560001, India",
   gst: "29ABCDE1234F1Z5",
-  email: "payroll@kredix.app",
+  email: "payroll@lbgs.app",
 };
 
 export const FIELD_LABELS: Record<string, string> = {

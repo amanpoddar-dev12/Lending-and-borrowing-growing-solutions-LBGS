@@ -14,9 +14,9 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/history")({
   head: () => ({
     meta: [
-      { title: "Activity history — Kredix" },
+      { title: "Activity history — LBGS" },
       { name: "description", content: "Every action you and your accounts completed, with links to the original record." },
-      { property: "og:title", content: "Activity history — Kredix" },
+      { property: "og:title", content: "Activity history — LBGS" },
       { property: "og:description", content: "Every action you and your accounts completed, with links to the original record." },
       { name: "robots", content: "noindex" },
     ],

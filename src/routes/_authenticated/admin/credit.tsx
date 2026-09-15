@@ -14,9 +14,9 @@ import { useRealtimeOrders } from "@/hooks/use-realtime-orders";
 export const Route = createFileRoute("/_authenticated/admin/credit")({
   head: () => ({
     meta: [
-      { title: "Credit purse — Kredix" },
+      { title: "Credit purse — LBGS" },
       { name: "description", content: "Live credit utilization across all clients." },
-      { property: "og:title", content: "Credit purse — Kredix" },
+      { property: "og:title", content: "Credit purse — LBGS" },
       { property: "og:description", content: "Live credit utilization across all clients." },
       { name: "robots", content: "noindex" },
     ],

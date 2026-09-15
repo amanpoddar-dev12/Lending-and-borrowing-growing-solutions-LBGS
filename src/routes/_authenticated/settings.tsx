@@ -28,9 +28,9 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — Kredix" },
+      { title: "Settings — LBGS" },
       { name: "description", content: "Manage appearance, language, and admin accounts." },
-      { property: "og:title", content: "Settings — Kredix" },
+      { property: "og:title", content: "Settings — LBGS" },
       { property: "og:description", content: "Manage appearance, language, and admin accounts." },
       { name: "robots", content: "noindex" },
     ],

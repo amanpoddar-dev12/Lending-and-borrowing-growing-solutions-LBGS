@@ -13,9 +13,9 @@ import { invalidateFor, patchListRow } from "@/lib/query-mutations";
 export const Route = createFileRoute("/_authenticated/employee/tasks")({
   head: () => ({
     meta: [
-      { title: "Tasks — Kredix" },
+      { title: "Tasks — LBGS" },
       { name: "description", content: "Your assigned tasks and their status." },
-      { property: "og:title", content: "Tasks — Kredix" },
+      { property: "og:title", content: "Tasks — LBGS" },
       { property: "og:description", content: "Your assigned tasks and their status." },
       { name: "robots", content: "noindex" },
     ],

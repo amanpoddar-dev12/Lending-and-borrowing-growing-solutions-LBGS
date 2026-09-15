@@ -13,8 +13,8 @@ import { qk } from "@/lib/query-keys";
 export const Route = createFileRoute("/_authenticated/complete-profile")({
   head: () => ({
     meta: [
-      { title: "Complete your profile — Kredix" },
-      { name: "description", content: "Finish setting up your Kredix account." },
+      { title: "Complete your profile — LBGS" },
+      { name: "description", content: "Finish setting up your LBGS account." },
       { name: "robots", content: "noindex" },
     ],
   }),

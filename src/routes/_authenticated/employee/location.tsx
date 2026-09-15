@@ -9,9 +9,9 @@ import { MapPinned, ShieldCheck, AlertTriangle } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/employee/location")({
   head: () => ({
     meta: [
-      { title: "My location — Kredix" },
+      { title: "My location — LBGS" },
       { name: "description", content: "Your live location shared with admins for attendance and field tracking." },
-      { property: "og:title", content: "My location — Kredix" },
+      { property: "og:title", content: "My location — LBGS" },
       { property: "og:description", content: "Your live location shared with admins for attendance and field tracking." },
       { name: "robots", content: "noindex" },
     ],

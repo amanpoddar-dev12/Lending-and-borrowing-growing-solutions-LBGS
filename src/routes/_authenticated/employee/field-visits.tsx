@@ -20,9 +20,9 @@ import { VoiceNotePlayer } from "@/components/field-visits/voice-note-player";
 export const Route = createFileRoute("/_authenticated/employee/field-visits")({
   head: () => ({
     meta: [
-      { title: "My field visits — Kredix" },
+      { title: "My field visits — LBGS" },
       { name: "description", content: "Field visits assigned to you, with reminders and outcomes." },
-      { property: "og:title", content: "My field visits — Kredix" },
+      { property: "og:title", content: "My field visits — LBGS" },
       { property: "og:description", content: "Field visits assigned to you, with reminders and outcomes." },
       { name: "robots", content: "noindex" },
     ],
