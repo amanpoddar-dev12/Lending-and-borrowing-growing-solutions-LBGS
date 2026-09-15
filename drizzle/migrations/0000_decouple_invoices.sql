@@ -1,8 +1,4 @@
 -- Decouple credit, delivery and payment reminders from invoices.
--- Amount due is derived from orders and payments; the invoices table is left
--- in place but is no longer read or written by any workflow.
-
--- 1. Credit purse: used credit = live order value minus money received.
 CREATE OR REPLACE FUNCTION public.refresh_credit_purse(_client_id uuid, _event text DEFAULT 'recalculated', _source_table text DEFAULT NULL, _source_id text DEFAULT NULL)
 RETURNS void
 LANGUAGE plpgsql
@@ -53,7 +49,6 @@ BEGIN
   PERFORM public.refresh_credit_purse(_client_id, 'recalculated', NULL, NULL);
 END; $function$;
 
--- 2. Delivery completion: no invoice, just the payment-due reminder.
 CREATE OR REPLACE FUNCTION public.emp_verify_delivery_otp(p_order_id uuid, p_code text)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
 AS $function$
@@ -131,7 +126,6 @@ BEGIN
           jsonb_build_object('status','completed','due_date', v_due));
 END; $function$;
 
--- 3. Payment reminders derived from orders + credit terms + verified payments.
 CREATE OR REPLACE FUNCTION public.generate_payment_reminders()
 RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
 AS $function$
