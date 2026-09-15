@@ -35,7 +35,7 @@ function Landing() {
       <header className="border-b border-border/60">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground font-bold">LBGS</div>
+            <div className="grid size-8 place-items-center rounded-md bg-primary text-[9px] font-bold tracking-tight text-primary-foreground">LBGS</div>
             <span className="font-display text-lg font-semibold">LBGS</span>
           </div>
           <nav className="flex items-center gap-3">
