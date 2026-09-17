@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { listEmployees } from "@/lib/employees.functions";
 import {
-  listPayslips, savePayslip, deletePayslip, computeTotals, EARNING_KEYS,
+  listPayslips, savePayslip, deletePayslip, computeTotals, EARNING_KEYS, DEDUCTION_KEYS,
 } from "@/lib/payslips.functions";
 import { PayslipDocument, FIELD_LABELS, MONTHS, periodLabel } from "@/components/payslip-document";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin/payslips")({
   component: AdminPayslips,
 });
 
-const ALL_KEYS = EARNING_KEYS;
+const ALL_KEYS = [...EARNING_KEYS, ...DEDUCTION_KEYS] as const;
 const emptyForm = () =>
   Object.fromEntries(ALL_KEYS.map((k) => [k, ""])) as Record<(typeof ALL_KEYS)[number], string>;
 
@@ -144,14 +144,30 @@ function AdminPayslips() {
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {EARNING_KEYS.map((k) => (
-                <div key={k} className="space-y-1">
-                  <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
-                  <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
-                    onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
-                </div>
-              ))}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Earnings</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {EARNING_KEYS.map((k) => (
+                  <div key={k} className="space-y-1">
+                    <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
+                    <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
+                      onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Deductions</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {DEDUCTION_KEYS.map((k) => (
+                  <div key={k} className="space-y-1">
+                    <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
+                    <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
+                      onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -159,9 +175,19 @@ function AdminPayslips() {
               <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
             </div>
 
-            <div className="flex items-center justify-between rounded-md bg-muted p-3 text-sm">
-              <span className="text-muted-foreground">Total pay (basic pay + allowance)</span>
-              <p className="font-semibold">{inr(totals.net)}</p>
+            <div className="space-y-1 rounded-md bg-muted p-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Gross earnings (incl. BSR)</span>
+                <span>{inr(totals.gross)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Total deductions</span>
+                <span>− {inr(totals.deductions)}</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-border pt-1 font-semibold">
+                <span>Total pay</span>
+                <span>{inr(totals.net)}</span>
+              </div>
             </div>
 
             <Button type="submit" disabled={save.isPending || invalid || !employeeId}>

@@ -1,5 +1,5 @@
 import { inr, fmtDate } from "@/lib/format";
-import { EARNING_KEYS } from "@/lib/payslips.functions";
+import { EARNING_KEYS, DEDUCTION_KEYS, computeTotals } from "@/lib/payslips.functions";
 
 export const COMPANY = {
   name: "Lending and Borrowing Growing Solutions",
@@ -15,6 +15,10 @@ export const FIELD_LABELS: Record<string, string> = {
   bonus: "Bonus / incentive",
   commission: "Commission",
   other_earnings: "Other earnings",
+  bsr_amount: "Best Salesman Reward (BSR)",
+  lic_amount: "LIC amount",
+  bike_deduction: "Bike",
+  mobile_recharge: "Mobile recharge",
   pf: "Provident fund",
   professional_tax: "Professional tax",
   tds: "TDS",
@@ -30,6 +34,7 @@ export const MONTHS = [
 export const periodLabel = (y: number, m: number) => `${MONTHS[m - 1]} ${y}`;
 
 export function PayslipDocument({ slip }: { slip: any }) {
+  const totals = computeTotals(slip ?? {});
   return (
     <div className="space-y-4 rounded-lg border border-border bg-card p-4 text-sm md:p-6">
       <header className="flex flex-col gap-2 border-b border-border pb-4 md:flex-row md:items-start md:justify-between">
@@ -64,12 +69,32 @@ export function PayslipDocument({ slip }: { slip: any }) {
               <dd>{inr(slip[k])}</dd>
             </div>
           ))}
+          <div className="flex justify-between gap-4 border-t border-border pt-1 font-medium">
+            <dt>Gross earnings</dt>
+            <dd>{inr(totals.gross)}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h4 className="mb-2 font-medium">Deductions</h4>
+        <dl className="space-y-1">
+          {DEDUCTION_KEYS.map((k) => (
+            <div key={k} className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">{FIELD_LABELS[k]}</dt>
+              <dd>{inr(slip[k])}</dd>
+            </div>
+          ))}
+          <div className="flex justify-between gap-4 border-t border-border pt-1 font-medium">
+            <dt>Total deductions</dt>
+            <dd>− {inr(totals.deductions)}</dd>
+          </div>
         </dl>
       </section>
 
       <div className="flex items-center justify-between rounded-md bg-muted px-3 py-2 font-semibold">
         <span>Total pay</span>
-        <span>{inr(slip.net_pay)}</span>
+        <span>{inr(totals.net)}</span>
       </div>
 
       {slip.notes ? <p className="text-xs text-muted-foreground">Note: {slip.notes}</p> : null}
