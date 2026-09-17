@@ -34,6 +34,7 @@ export const MONTHS = [
 export const periodLabel = (y: number, m: number) => `${MONTHS[m - 1]} ${y}`;
 
 export function PayslipDocument({ slip }: { slip: any }) {
+  const totals = computeTotals(slip ?? {});
   return (
     <div className="space-y-4 rounded-lg border border-border bg-card p-4 text-sm md:p-6">
       <header className="flex flex-col gap-2 border-b border-border pb-4 md:flex-row md:items-start md:justify-between">
