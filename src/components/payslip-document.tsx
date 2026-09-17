@@ -68,12 +68,32 @@ export function PayslipDocument({ slip }: { slip: any }) {
               <dd>{inr(slip[k])}</dd>
             </div>
           ))}
+          <div className="flex justify-between gap-4 border-t border-border pt-1 font-medium">
+            <dt>Gross earnings</dt>
+            <dd>{inr(totals.gross)}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h4 className="mb-2 font-medium">Deductions</h4>
+        <dl className="space-y-1">
+          {DEDUCTION_KEYS.map((k) => (
+            <div key={k} className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">{FIELD_LABELS[k]}</dt>
+              <dd>{inr(slip[k])}</dd>
+            </div>
+          ))}
+          <div className="flex justify-between gap-4 border-t border-border pt-1 font-medium">
+            <dt>Total deductions</dt>
+            <dd>− {inr(totals.deductions)}</dd>
+          </div>
         </dl>
       </section>
 
       <div className="flex items-center justify-between rounded-md bg-muted px-3 py-2 font-semibold">
         <span>Total pay</span>
-        <span>{inr(slip.net_pay)}</span>
+        <span>{inr(totals.net)}</span>
       </div>
 
       {slip.notes ? <p className="text-xs text-muted-foreground">Note: {slip.notes}</p> : null}
