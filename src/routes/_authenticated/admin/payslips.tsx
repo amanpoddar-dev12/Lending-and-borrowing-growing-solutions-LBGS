@@ -144,14 +144,30 @@ function AdminPayslips() {
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {EARNING_KEYS.map((k) => (
-                <div key={k} className="space-y-1">
-                  <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
-                  <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
-                    onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
-                </div>
-              ))}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Earnings</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {EARNING_KEYS.map((k) => (
+                  <div key={k} className="space-y-1">
+                    <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
+                    <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
+                      onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Deductions</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {DEDUCTION_KEYS.map((k) => (
+                  <div key={k} className="space-y-1">
+                    <Label htmlFor={k} className="text-xs text-muted-foreground">{FIELD_LABELS[k]}</Label>
+                    <Input id={k} type="number" min={0} step="0.01" inputMode="decimal" value={form[k]}
+                      onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} placeholder="0" />
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-1">
