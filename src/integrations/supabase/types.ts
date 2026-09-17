@@ -1350,7 +1350,9 @@ export type Database = {
           advance_deduction: number
           allowances: number
           basic_pay: number
+          bike_deduction: number
           bonus: number
+          bsr_amount: number
           commission: number
           created_at: string
           employee_id: string
@@ -1359,6 +1361,8 @@ export type Database = {
           gross_earnings: number
           hra: number
           id: string
+          lic_amount: number
+          mobile_recharge: number
           net_pay: number
           notes: string | null
           other_deductions: number
@@ -1375,7 +1379,9 @@ export type Database = {
           advance_deduction?: number
           allowances?: number
           basic_pay?: number
+          bike_deduction?: number
           bonus?: number
+          bsr_amount?: number
           commission?: number
           created_at?: string
           employee_id: string
@@ -1384,6 +1390,8 @@ export type Database = {
           gross_earnings?: number
           hra?: number
           id?: string
+          lic_amount?: number
+          mobile_recharge?: number
           net_pay?: number
           notes?: string | null
           other_deductions?: number
@@ -1400,7 +1408,9 @@ export type Database = {
           advance_deduction?: number
           allowances?: number
           basic_pay?: number
+          bike_deduction?: number
           bonus?: number
+          bsr_amount?: number
           commission?: number
           created_at?: string
           employee_id?: string
@@ -1409,6 +1419,8 @@ export type Database = {
           gross_earnings?: number
           hra?: number
           id?: string
+          lic_amount?: number
+          mobile_recharge?: number
           net_pay?: number
           notes?: string | null
           other_deductions?: number

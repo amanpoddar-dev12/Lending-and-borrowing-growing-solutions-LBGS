@@ -71,7 +71,7 @@ const navByRole: Record<Role, NavGroup[]> = {
 
 export function AppSidebar({ role, name }: { role: Role; name: string }) {
   const { t } = useTranslation();
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { can } = usePermissions();
@@ -81,6 +81,9 @@ export function AppSidebar({ role, name }: { role: Role; name: string }) {
   }));
   const qc = useQueryClient();
   const warm = (url: string) => prefetchRouteData(qc, url, role);
+  const closeOnNavigate = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
 
   return (
@@ -115,6 +118,7 @@ export function AppSidebar({ role, name }: { role: Role; name: string }) {
                           onMouseEnter={() => warm(item.url)}
                           onFocus={() => warm(item.url)}
                           onTouchStart={() => warm(item.url)}
+                          onClick={closeOnNavigate}
                         >
 
                           <item.icon className="size-4" />
