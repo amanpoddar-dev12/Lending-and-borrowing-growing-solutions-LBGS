@@ -118,6 +118,7 @@ export function AppSidebar({ role, name }: { role: Role; name: string }) {
                           onMouseEnter={() => warm(item.url)}
                           onFocus={() => warm(item.url)}
                           onTouchStart={() => warm(item.url)}
+                          onClick={closeOnNavigate}
                         >
 
                           <item.icon className="size-4" />
