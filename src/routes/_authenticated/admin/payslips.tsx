@@ -175,9 +175,19 @@ function AdminPayslips() {
               <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
             </div>
 
-            <div className="flex items-center justify-between rounded-md bg-muted p-3 text-sm">
-              <span className="text-muted-foreground">Total pay (basic pay + allowance)</span>
-              <p className="font-semibold">{inr(totals.net)}</p>
+            <div className="space-y-1 rounded-md bg-muted p-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Gross earnings (incl. BSR)</span>
+                <span>{inr(totals.gross)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Total deductions</span>
+                <span>− {inr(totals.deductions)}</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-border pt-1 font-semibold">
+                <span>Total pay</span>
+                <span>{inr(totals.net)}</span>
+              </div>
             </div>
 
             <Button type="submit" disabled={save.isPending || invalid || !employeeId}>
