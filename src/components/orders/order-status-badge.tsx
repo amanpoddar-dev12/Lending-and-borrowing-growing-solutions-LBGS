@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const styles: Record<string, string> = {
   pending: "bg-amber-500/15 text-amber-600 ring-amber-500/30 dark:text-amber-400",
@@ -17,24 +18,8 @@ const styles: Record<string, string> = {
   completed: "bg-amber-500/15 text-amber-600 ring-amber-500/30 dark:text-amber-400",
 };
 
-const labels: Record<string, string> = {
-  pending: "Pending",
-  pending_client: "Awaiting client",
-  client_approved: "Processing",
-  client_rejected: "Client rejected",
-  confirmed: "Confirmed",
-  declined: "Declined",
-  change_requested: "Change requested",
-  invoiced: "Invoiced",
-  paid: "Payment completed",
-  payment_pending: "Payment due",
-  payment_submitted: "Payment under verification",
-  payment_verified: "Payment verified",
-  out_for_delivery: "Dispatched",
-  completed: "Delivered — payment due",
-};
-
 export function OrderStatusBadge({ status, className }: { status: string; className?: string }) {
+  const { t } = useTranslation();
   return (
     <span
       className={cn(
@@ -44,7 +29,7 @@ export function OrderStatusBadge({ status, className }: { status: string; classN
       )}
     >
       <span className="size-1.5 rounded-full bg-current opacity-70" />
-      {labels[status] ?? status}
+      {t(`orderStatus.${status}`, { defaultValue: status })}
     </span>
   );
 }
