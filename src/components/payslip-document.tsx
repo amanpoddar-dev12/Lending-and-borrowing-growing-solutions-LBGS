@@ -1,5 +1,5 @@
 import { inr, fmtDate } from "@/lib/format";
-import { EARNING_KEYS } from "@/lib/payslips.functions";
+import { EARNING_KEYS, DEDUCTION_KEYS, computeTotals } from "@/lib/payslips.functions";
 
 export const COMPANY = {
   name: "Lending and Borrowing Growing Solutions",
@@ -15,6 +15,10 @@ export const FIELD_LABELS: Record<string, string> = {
   bonus: "Bonus / incentive",
   commission: "Commission",
   other_earnings: "Other earnings",
+  bsr_amount: "Best Salesman Reward (BSR)",
+  lic_amount: "LIC amount",
+  bike_deduction: "Bike",
+  mobile_recharge: "Mobile recharge",
   pf: "Provident fund",
   professional_tax: "Professional tax",
   tds: "TDS",
