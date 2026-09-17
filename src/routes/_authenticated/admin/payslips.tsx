@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { listEmployees } from "@/lib/employees.functions";
 import {
-  listPayslips, savePayslip, deletePayslip, computeTotals, EARNING_KEYS,
+  listPayslips, savePayslip, deletePayslip, computeTotals, EARNING_KEYS, DEDUCTION_KEYS,
 } from "@/lib/payslips.functions";
 import { PayslipDocument, FIELD_LABELS, MONTHS, periodLabel } from "@/components/payslip-document";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin/payslips")({
   component: AdminPayslips,
 });
 
-const ALL_KEYS = EARNING_KEYS;
+const ALL_KEYS = [...EARNING_KEYS, ...DEDUCTION_KEYS] as const;
 const emptyForm = () =>
   Object.fromEntries(ALL_KEYS.map((k) => [k, ""])) as Record<(typeof ALL_KEYS)[number], string>;
 
