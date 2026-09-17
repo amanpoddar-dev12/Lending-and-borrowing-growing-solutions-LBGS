@@ -15,15 +15,17 @@ import { CheckCircle2, X } from "lucide-react";
 import { qk } from "@/lib/query-keys";
 import { readDismissed, writeDismissed, type DismissMap } from "@/lib/dismissed-tasks";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
-const PRIORITY_STYLE: Record<string, { dot: string; ring: string; label: string }> = {
-  action_required: { dot: "bg-red-500", ring: "border-red-500/40 bg-red-500/5", label: "Action required" },
-  overdue: { dot: "bg-orange-500", ring: "border-orange-500/40 bg-orange-500/5", label: "Overdue" },
-  under_review: { dot: "bg-sky-500", ring: "border-sky-500/40 bg-sky-500/5", label: "Under review" },
-  pending: { dot: "bg-amber-500", ring: "border-amber-500/40 bg-amber-500/5", label: "Pending" },
+const PRIORITY_STYLE: Record<string, { dot: string; ring: string }> = {
+  action_required: { dot: "bg-red-500", ring: "border-red-500/40 bg-red-500/5" },
+  overdue: { dot: "bg-orange-500", ring: "border-orange-500/40 bg-orange-500/5" },
+  under_review: { dot: "bg-sky-500", ring: "border-sky-500/40 bg-sky-500/5" },
+  pending: { dot: "bg-amber-500", ring: "border-amber-500/40 bg-amber-500/5" },
 };
 
 export function PendingActions({ initial = 4 }: { initial?: number }) {
+  const { t: tr } = useTranslation();
   const fn = useServerFn(getPendingTasks);
   const meFn = useServerFn(getMe);
   useRealtimeOrders();
@@ -55,10 +57,10 @@ export function PendingActions({ initial = 4 }: { initial?: number }) {
 
   const dismiss = (t: PendingTask) => {
     update({ ...dismissed, [t.id]: t.status });
-    toast.success("Removed from your pending actions", {
-      description: "It stays visible for other users and returns if the item changes.",
+    toast.success(tr("pending.removed"), {
+      description: tr("pending.removedDesc"),
       action: {
-        label: "Undo",
+        label: tr("pending.undo"),
         onClick: () => {
           const next = { ...dismissed };
           delete next[t.id];
@@ -73,26 +75,26 @@ export function PendingActions({ initial = 4 }: { initial?: number }) {
       <Card className="border-primary/30">
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
           <CardTitle className="text-base">
-            Pending actions{tasks.length > 0 && ` (${tasks.length})`}
+            {tasks.length > 0 ? tr("pending.titleCount", { count: tasks.length }) : tr("pending.title")}
           </CardTitle>
           <div className="flex items-center gap-1">
             {hiddenCount > 0 && (
               <Button size="sm" variant="ghost" onClick={() => update({})}>
-                Restore {hiddenCount} removed
+                {tr("pending.restore", { count: hiddenCount })}
               </Button>
             )}
             {tasks.length > initial && (
               <Button size="sm" variant="ghost" onClick={() => setShowAll((v) => !v)}>
-                {showAll ? "Show less" : "View all"}
+                {showAll ? tr("pending.showLess") : tr("pending.viewAll")}
               </Button>
             )}
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          {isLoading && <p className="py-4 text-sm text-muted-foreground">Loading…</p>}
+          {isLoading && <p className="py-4 text-sm text-muted-foreground">{tr("pending.loading")}</p>}
           {!isLoading && tasks.length === 0 && (
             <p className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
-              <CheckCircle2 className="size-4 text-emerald-500" /> You're all caught up
+              <CheckCircle2 className="size-4 text-emerald-500" /> {tr("pending.allCaughtUp")}
             </p>
           )}
           {visible.map((t) => {
@@ -105,7 +107,7 @@ export function PendingActions({ initial = 4 }: { initial?: number }) {
               <Button
                 size="sm"
                 className="w-full sm:w-auto"
-                onClick={() => setAssigning({ id: t.clientId!, business_name: t.clientName ?? "Client" })}
+                onClick={() => setAssigning({ id: t.clientId!, business_name: t.clientName ?? tr("pending.clientFallback") })}
               >
                 {t.actionLabel}
               </Button>
@@ -128,7 +130,7 @@ export function PendingActions({ initial = 4 }: { initial?: number }) {
                     <span className={cn("size-2 shrink-0 rounded-full", style.dot)} />
                     <span className="text-sm font-medium">{t.title}</span>
                     <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                      {t.status}
+                      {tr(`orderStatus.${t.status}`, { defaultValue: tr(`pending.priority.${t.status}`, { defaultValue: t.status }) })}
                     </span>
                   </div>
                   <p className="truncate text-xs text-muted-foreground">{t.description}</p>
@@ -144,8 +146,8 @@ export function PendingActions({ initial = 4 }: { initial?: number }) {
                     size="icon"
                     variant="ghost"
                     className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
-                    aria-label={`Remove "${t.title}" from your pending actions`}
-                    title="Remove from my pending actions"
+                    aria-label={tr("pending.removeAria", { title: t.title })}
+                    title={tr("pending.remove")}
                     onClick={() => dismiss(t)}
                   >
                     <X className="size-4" />

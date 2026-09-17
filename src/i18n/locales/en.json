@@ -132,5 +132,66 @@
       "success": "Admin account created",
       "existing": "Existing admins"
     }
+  },
+  "orders": {
+    "title": "Orders",
+    "subtitleAll": "All orders across the business.",
+    "subtitleClient": "Orders awaiting your review and past approvals.",
+    "searchPlaceholder": "Search…",
+    "colOrder": "Order",
+    "colClient": "Client",
+    "colEmployee": "Employee",
+    "colDate": "Date",
+    "colAmount": "Amount",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "empty": "No orders",
+    "showMore": "Show more ({{count}} remaining)",
+    "pay": "Pay",
+    "viewCode": "View code",
+    "review": "Review",
+    "enterOtp": "Enter OTP",
+    "dispatch": "Dispatch",
+    "sendForApproval": "Send for approval",
+    "confirm": "Confirm",
+    "statusUpdated": "Status updated",
+    "sentToClient": "Sent to client for approval"
+  },
+  "orderStatus": {
+    "pending": "Pending",
+    "pending_client": "Awaiting client",
+    "client_approved": "Processing",
+    "client_rejected": "Client rejected",
+    "confirmed": "Confirmed",
+    "declined": "Declined",
+    "change_requested": "Change requested",
+    "invoiced": "Invoiced",
+    "paid": "Payment completed",
+    "payment_pending": "Payment due",
+    "payment_submitted": "Payment under verification",
+    "payment_verified": "Payment verified",
+    "out_for_delivery": "Dispatched",
+    "completed": "Delivered — payment due"
+  },
+  "pending": {
+    "title": "Pending actions",
+    "titleCount": "Pending actions ({{count}})",
+    "restore": "Restore {{count}} removed",
+    "viewAll": "View all",
+    "showLess": "Show less",
+    "loading": "Loading…",
+    "allCaughtUp": "You're all caught up",
+    "removed": "Removed from your pending actions",
+    "removedDesc": "It stays visible for other users and returns if the item changes.",
+    "undo": "Undo",
+    "remove": "Remove from my pending actions",
+    "removeAria": "Remove \"{{title}}\" from your pending actions",
+    "clientFallback": "Client",
+    "priority": {
+      "action_required": "Action required",
+      "overdue": "Overdue",
+      "under_review": "Under review",
+      "pending": "Pending"
+    }
   }
 }

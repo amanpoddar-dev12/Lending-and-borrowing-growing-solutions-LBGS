@@ -132,5 +132,66 @@
       "success": "एडमिन खाता बनाया गया",
       "existing": "मौजूदा एडमिन"
     }
+  },
+  "orders": {
+    "title": "ऑर्डर",
+    "subtitleAll": "व्यवसाय के सभी ऑर्डर।",
+    "subtitleClient": "आपकी समीक्षा की प्रतीक्षा में ऑर्डर और पिछली स्वीकृतियाँ।",
+    "searchPlaceholder": "खोजें…",
+    "colOrder": "ऑर्डर",
+    "colClient": "क्लाइंट",
+    "colEmployee": "कर्मचारी",
+    "colDate": "तारीख",
+    "colAmount": "राशि",
+    "colStatus": "स्थिति",
+    "colActions": "कार्रवाई",
+    "empty": "कोई ऑर्डर नहीं",
+    "showMore": "और दिखाएँ ({{count}} शेष)",
+    "pay": "भुगतान करें",
+    "viewCode": "कोड देखें",
+    "review": "समीक्षा करें",
+    "enterOtp": "OTP दर्ज करें",
+    "dispatch": "डिस्पैच करें",
+    "sendForApproval": "स्वीकृति के लिए भेजें",
+    "confirm": "पुष्टि करें",
+    "statusUpdated": "स्थिति अपडेट हुई",
+    "sentToClient": "स्वीकृति के लिए क्लाइंट को भेजा गया"
+  },
+  "orderStatus": {
+    "pending": "लंबित",
+    "pending_client": "क्लाइंट की प्रतीक्षा",
+    "client_approved": "प्रक्रिया में",
+    "client_rejected": "क्लाइंट ने अस्वीकार किया",
+    "confirmed": "पुष्ट",
+    "declined": "अस्वीकृत",
+    "change_requested": "बदलाव का अनुरोध",
+    "invoiced": "इनवॉइस किया",
+    "paid": "भुगतान पूर्ण",
+    "payment_pending": "भुगतान बाकी",
+    "payment_submitted": "भुगतान सत्यापन में",
+    "payment_verified": "भुगतान सत्यापित",
+    "out_for_delivery": "डिस्पैच किया",
+    "completed": "डिलीवर — भुगतान बाकी"
+  },
+  "pending": {
+    "title": "लंबित कार्रवाइयाँ",
+    "titleCount": "लंबित कार्रवाइयाँ ({{count}})",
+    "restore": "{{count}} हटाए गए वापस लाएँ",
+    "viewAll": "सभी देखें",
+    "showLess": "कम दिखाएँ",
+    "loading": "लोड हो रहा है…",
+    "allCaughtUp": "सब पूरा हो गया",
+    "removed": "आपकी लंबित कार्रवाइयों से हटाया गया",
+    "removedDesc": "यह अन्य उपयोगकर्ताओं को दिखता रहेगा और बदलाव होने पर वापस आ जाएगा।",
+    "undo": "पूर्ववत करें",
+    "remove": "मेरी लंबित कार्रवाइयों से हटाएँ",
+    "removeAria": "\"{{title}}\" को आपकी लंबित कार्रवाइयों से हटाएँ",
+    "clientFallback": "क्लाइंट",
+    "priority": {
+      "action_required": "कार्रवाई आवश्यक",
+      "overdue": "अतिदेय",
+      "under_review": "समीक्षाधीन",
+      "pending": "लंबित"
+    }
   }
 }

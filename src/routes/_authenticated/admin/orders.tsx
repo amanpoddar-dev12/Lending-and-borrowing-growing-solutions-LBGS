@@ -17,8 +17,10 @@ import { qk } from "@/lib/query-keys";
 import { useVisibleRows } from "@/hooks/use-visible-rows";
 import { useMemo } from "react";
 import { invalidateFor, patchListRow } from "@/lib/query-mutations";
+import { useTranslation } from "react-i18next";
 
 function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
+  const { t } = useTranslation();
   const listFn = useServerFn(listOrders);
   const meFn = useServerFn(getMe);
   const statusFn = useServerFn(updateOrderStatus);
@@ -42,7 +44,7 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
       if (ctx?.prev) qc.setQueryData(qk.orders as unknown as unknown[], ctx.prev);
       toast.error(e.message);
     },
-    onSuccess: () => toast.success("Status updated"),
+    onSuccess: () => toast.success(t("orders.statusUpdated")),
     onSettled: () => invalidateFor(qc, "order"),
   });
   const submit = useMutation({
@@ -53,7 +55,7 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
       return { prev };
     },
     onError: (e: any, _id, ctx) => { if (ctx?.prev) qc.setQueryData(qk.orders as unknown as unknown[], ctx.prev); toast.error(e.message); },
-    onSuccess: () => toast.success("Sent to client for approval"),
+    onSuccess: () => toast.success(t("orders.sentToClient")),
     onSettled: () => invalidateFor(qc, "order"),
   });
 
@@ -76,22 +78,22 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
     <>
       {me?.role === "client" && ["pending_client", "payment_pending", "completed", "out_for_delivery"].includes(o.status) && (
         <Button size="sm" onClick={() => setOpenId(o.id)}>
-          {o.status === "payment_pending" || o.status === "completed" ? "Pay" : o.status === "out_for_delivery" ? "View code" : "Review"}
+          {o.status === "payment_pending" || o.status === "completed" ? t("orders.pay") : o.status === "out_for_delivery" ? t("orders.viewCode") : t("orders.review")}
         </Button>
       )}
       {scope !== "client" && ["client_approved", "payment_verified", "out_for_delivery"].includes(o.status) && (
         <Button size="sm" onClick={() => setOpenId(o.id)}>
-          {o.status === "out_for_delivery" ? "Enter OTP" : "Dispatch"}
+          {o.status === "out_for_delivery" ? t("orders.enterOtp") : t("orders.dispatch")}
         </Button>
       )}
       {scope !== "client" && canSubmit(o) && (
         <Button size="sm" variant="outline" disabled={submit.isPending}
-          onClick={() => submit.mutate(o.id)}>Send for approval</Button>
+          onClick={() => submit.mutate(o.id)}>{t("orders.sendForApproval")}</Button>
       )}
       {scope === "admin" && me?.role === "admin" && (
         <>
           {o.status === "pending" && (
-            <Button size="sm" onClick={() => setStatus.mutate({ id: o.id, status: "confirmed" })}>Confirm</Button>
+            <Button size="sm" onClick={() => setStatus.mutate({ id: o.id, status: "confirmed" })}>{t("orders.confirm")}</Button>
           )}
         </>
       )}
@@ -102,12 +104,12 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <div>
-          <h1 className="font-display text-xl font-semibold sm:text-2xl">Orders</h1>
+          <h1 className="font-display text-xl font-semibold sm:text-2xl">{t("orders.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            {scope === "client" ? "Orders awaiting your review and past approvals." : "All orders across the business."}
+            {scope === "client" ? t("orders.subtitleClient") : t("orders.subtitleAll")}
           </p>
         </div>
-        <Input placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} className="w-full sm:ml-auto sm:w-56" />
+        <Input placeholder={t("orders.searchPlaceholder")} value={q} onChange={(e) => setQ(e.target.value)} className="w-full sm:ml-auto sm:w-56" />
       </div>
       <Card>
         <CardContent className="p-0">
@@ -115,17 +117,17 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
             <table className="w-full min-w-[680px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-muted-foreground">
-                  <th className="px-4 py-3">Order</th>
-                  <th className="py-3">Client</th>
-                  <th className="py-3">Employee</th>
-                  <th className="py-3">Date</th>
-                  <th className="py-3">Amount</th>
-                  <th className="py-3">Status</th>
-                  <th className="py-3 pr-4 text-right">Actions</th>
+                  <th className="px-4 py-3">{t("orders.colOrder")}</th>
+                  <th className="py-3">{t("orders.colClient")}</th>
+                  <th className="py-3">{t("orders.colEmployee")}</th>
+                  <th className="py-3">{t("orders.colDate")}</th>
+                  <th className="py-3">{t("orders.colAmount")}</th>
+                  <th className="py-3">{t("orders.colStatus")}</th>
+                  <th className="py-3 pr-4 text-right">{t("orders.colActions")}</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No orders</td></tr>}
+                {filtered.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">{t("orders.empty")}</td></tr>}
                 {shown.map((o: any) => (
                   <tr
                     key={o.id}
@@ -150,7 +152,7 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
           {/* Mobile: cards instead of a horizontally scrolling table */}
           <ul className="divide-y divide-border md:hidden">
             {filtered.length === 0 && (
-              <li className="px-4 py-8 text-center text-muted-foreground">No orders</li>
+              <li className="px-4 py-8 text-center text-muted-foreground">{t("orders.empty")}</li>
             )}
             {shown.map((o: any) => (
               <li key={o.id} className="p-4" onClick={() => setOpenId(o.id)}>
@@ -175,7 +177,7 @@ function OrdersTable({ scope }: { scope: "admin" | "client" | "employee" }) {
           {hasMore && (
             <div className="border-t border-border p-3 text-center">
               <Button variant="outline" size="sm" onClick={showMore}>
-                Show more ({remaining} remaining)
+                {t("orders.showMore", { count: remaining })}
               </Button>
             </div>
           )}
