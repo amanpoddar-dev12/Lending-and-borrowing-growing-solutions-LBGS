@@ -16,22 +16,26 @@ const componentsSchema = z.object({
   bonus: money.default(0),
   commission: money.default(0),
   other_earnings: money.default(0),
+  bsr_amount: money.default(0),
   pf: money.default(0),
   professional_tax: money.default(0),
   tds: money.default(0),
   advance_deduction: money.default(0),
   other_deductions: money.default(0),
+  lic_amount: money.default(0),
+  bike_deduction: money.default(0),
+  mobile_recharge: money.default(0),
   notes: z.string().max(2000).optional().nullable(),
 });
 
 /**
- * The payslip was simplified to basic pay + allowance only. The remaining
- * salary columns stay in the database (historical records) but are no longer
- * captured or displayed anywhere.
+ * The payslip captures basic pay + allowance, plus an optional admin-only
+ * Best Salesman Reward. The other legacy salary columns stay in the database
+ * (historical records) but are no longer captured or displayed.
  */
-export const EARNING_KEYS = ["basic_pay", "allowances"] as const;
+export const EARNING_KEYS = ["basic_pay", "allowances", "bsr_amount"] as const;
 
-export const DEDUCTION_KEYS: readonly string[] = [];
+export const DEDUCTION_KEYS = ["lic_amount", "bike_deduction", "mobile_recharge"] as const;
 
 export function computeTotals(v: Record<string, number | null | undefined>) {
   const gross = EARNING_KEYS.reduce((s, k) => s + Number(v[k] ?? 0), 0);
