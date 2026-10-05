@@ -36,13 +36,13 @@ export const Route = createFileRoute("/_authenticated")({
   },
   component: AuthedLayout,
   errorComponent: ({ error }) =>
-    /unauthorized/i.test(error.message) ? (
+    /unauthorized/i.test((error as Error)?.message ?? "") ? (
       <Navigate to="/auth" replace />
     ) : (
       <div className="grid min-h-screen place-items-center p-4">
         <div className="max-w-md text-center">
           <h2 className="text-lg font-semibold">Something went wrong</h2>
-          <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{(error as Error)?.message}</p>
         </div>
       </div>
     ),
