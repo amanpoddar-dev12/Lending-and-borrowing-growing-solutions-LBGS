@@ -1,6 +1,6 @@
 // App-managed OTP store. Uses the private phone_otps / phone_otp_sends tables
-// (service role only). Outside production, falls back to process memory when
-// those tables don't exist yet (e.g. before the draft migration is applied).
+// (service role only). Falls back to process memory while those tables don't
+// exist yet (before the migration is applied).
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const MAX_VERIFY_ATTEMPTS = 5;
@@ -82,21 +82,21 @@ async function dbBackend(): Promise<Backend> {
   };
 }
 
-let cached: Backend | null = null;
+let dbReady: Backend | null = null;
 async function backend(): Promise<Backend> {
-  if (cached) return cached;
+  if (dbReady) return dbReady;
   try {
     const db = await dbBackend();
-    await db.getOtp("__probe__"); // fails if the table doesn't exist yet
-    cached = db;
-  } catch (e) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("OTP storage is not configured. Please contact support.");
-    }
-    console.warn("[otp] database store unavailable, using in-memory store (dev only)");
-    cached = memoryBackend;
+    await db.getOtp("__probe__"); // fails until the phone_otps table exists
+    dbReady = db;
+    return db;
+  } catch {
+    // Tables not created yet (draft not accepted). Fall back to process memory so
+    // login keeps working; re-probed on each call so the database takes over
+    // automatically once the tables exist.
+    console.warn("[otp] database store unavailable, using in-memory store");
+    return memoryBackend;
   }
-  return cached;
 }
 
 // ---------- public API ----------
