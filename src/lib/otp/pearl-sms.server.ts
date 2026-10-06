@@ -17,9 +17,9 @@ export function maskPhone(phone: string) {
 export type PearlParseResult = { ok: true } | { ok: false; reason: string };
 
 /**
- * Isolated success criteria. No official response example exists yet, so this
- * is deliberately strict: empty / non-JSON bodies are failures, and JSON is only
- * accepted when it clearly signals success. Update once Pearl provides a sample.
+ * Isolated success criteria. Observed Pearl success reply:
+ *   {"status":"SUCCESS","errormsg":"success","statuscode":200,"requestid":"42063669"}
+ * Empty / non-JSON bodies and any non-success status are failures.
  */
 export function parsePearlResponse(status: number, body: string): PearlParseResult {
   if (status < 200 || status >= 300) return { ok: false, reason: `HTTP ${status}` };
@@ -33,6 +33,9 @@ export function parsePearlResponse(status: number, body: string): PearlParseResu
   }
   if (!json || typeof json !== "object") return { ok: false, reason: "unexpected response shape" };
   if (json.error === true || json.success === false) return { ok: false, reason: "provider reported error" };
+  if (json.statuscode != null && Number(json.statuscode) !== 200) {
+    return { ok: false, reason: `provider statuscode ${json.statuscode}` };
+  }
   const status_ = String(json.status ?? json.Status ?? "").toLowerCase();
   if (json.success === true || ["success", "ok", "sent", "submitted", "accepted"].includes(status_)) {
     return { ok: true };
