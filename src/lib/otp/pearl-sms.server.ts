@@ -8,9 +8,6 @@ const TIMEOUT_MS = 10_000;
 const OTP_TEMPLATE =
   "Your OTP is {#var#}. Use this to verify your mobile number on SPPLFW. Valid for 5 minutes.";
 
-export function isProduction() {
-  return process.env.NODE_ENV === "production";
-}
 
 export function maskPhone(phone: string) {
   const d = phone.replace(/\D/g, "");

@@ -64,7 +64,7 @@ async function findClientRowByPhone(phone: string) {
 }
 
 /**
- * Validate (phone, role) is eligible to sign in, then send an OTP via Twilio Verify.
+ * Validate (phone, role) is eligible to sign in, then send an OTP via Pearl SMS.
  * - admin/employee: phone must be attached to a profile that has the given role.
  * - client: phone must belong to a profile with the client role, OR to a
  *   pre-created client record (auto-provisioned on first successful verify).
