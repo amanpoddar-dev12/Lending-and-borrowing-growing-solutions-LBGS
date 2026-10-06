@@ -1,4 +1,5 @@
-// Pearl SMS delivery. HTTP-only endpoint => LOCAL DEVELOPMENT ONLY.
+// Pearl SMS delivery. NOTE: Pearl only offers an HTTP endpoint; replace with an
+// HTTPS provider/endpoint before relying on this long-term in production.
 
 const PEARL_SEND_URL = "http://sms.pearlsms.com/public/sms/send";
 const TIMEOUT_MS = 10_000;
@@ -50,11 +51,6 @@ function redact(body: string, secrets: string[]) {
 
 /** Sends the OTP SMS. phone must be +91XXXXXXXXXX. Throws a generic error on failure. */
 export async function sendPearlOtp(phone: string, otp: string) {
-  if (isProduction()) {
-    throw new Error(
-      "SMS configuration error: a secure (HTTPS) SMS provider is required in production.",
-    );
-  }
   const apiKey = process.env.PEARLSMS_API_KEY;
   const sender = process.env.PEARLSMS_SENDER_ID;
   if (!apiKey || !sender) throw new Error("Pearl SMS is not configured");
