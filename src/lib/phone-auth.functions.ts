@@ -153,12 +153,35 @@ export const sendOtp = createServerFn({ method: "POST" })
       }
     }
 
-    await twilioVerifyStart(data.phone);
+    if (process.env.NODE_ENV === "production") {
+      // Live app keeps its existing secure (HTTPS) provider; Pearl SMS is HTTP-only.
+      await twilioVerifyStart(data.phone);
+      return { ok: true };
+    }
+
+    // Local development: app-managed OTP delivered via Pearl SMS.
+    const store = await import("@/lib/otp/otp-store.server");
+    const pearl = await import("@/lib/otp/pearl-sms.server");
+    const { getRequestHeader } = await import("@tanstack/react-start/server");
+    const ip =
+      getRequestHeader("cf-connecting-ip") ??
+      getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ??
+      null;
+    store.assertCanSend(data.phone, ip);
+    const otp = store.generateOtp();
+    await store.storeOtp(data.phone, otp);
+    try {
+      await pearl.sendPearlOtp(data.phone, otp);
+    } catch (e) {
+      store.discardOtp(data.phone);
+      throw e;
+    }
+    store.recordSend(data.phone, ip);
     return { ok: true };
   });
 
 /**
- * Verifies OTP with Twilio. For clients that exist only in the `clients`
+ * Verifies the OTP. For clients that exist only in the `clients`
  * table (pre-created by an employee), auto-provisions the auth user, links
  * the client record, and assigns the client role. Returns a Supabase session
  * for `supabase.auth.setSession()` on the client.
@@ -166,7 +189,10 @@ export const sendOtp = createServerFn({ method: "POST" })
 export const verifyOtp = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => verifySchema.parse(data))
   .handler(async ({ data }) => {
-    const approved = await twilioVerifyCheck(data.phone, data.code);
+    const approved =
+      process.env.NODE_ENV === "production"
+        ? await twilioVerifyCheck(data.phone, data.code)
+        : await (await import("@/lib/otp/otp-store.server")).consumeOtp(data.phone, data.code);
     if (!approved) throw new Error("Invalid or expired verification code.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
