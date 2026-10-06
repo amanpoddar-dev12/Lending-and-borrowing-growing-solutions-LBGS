@@ -34,56 +34,6 @@ function randomPassword() {
   return "P!" + Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("") + "Aa9";
 }
 
-function twilioAuthHeader() {
-  const sid = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  if (!sid || !token) throw new Error("Twilio credentials are not configured");
-  return "Basic " + Buffer.from(`${sid}:${token}`).toString("base64");
-}
-
-async function twilioVerifyStart(phone: string) {
-  const service = process.env.TWILIO_VERIFY_SERVICE_SID;
-  if (!service) throw new Error("Twilio Verify service is not configured");
-  const res = await fetch(
-    `https://verify.twilio.com/v2/Services/${service}/Verifications`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: twilioAuthHeader(),
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({ To: phone, Channel: "sms" }),
-    },
-  );
-  if (!res.ok) {
-    const body = await res.text();
-    console.error("Twilio Verify start failed", res.status, body);
-    throw new Error("Failed to send verification code. Please try again.");
-  }
-}
-
-async function twilioVerifyCheck(phone: string, code: string) {
-  const service = process.env.TWILIO_VERIFY_SERVICE_SID;
-  if (!service) throw new Error("Twilio Verify service is not configured");
-  const res = await fetch(
-    `https://verify.twilio.com/v2/Services/${service}/VerificationCheck`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: twilioAuthHeader(),
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({ To: phone, Code: code }),
-    },
-  );
-  const body = await res.json().catch(() => null as any);
-  if (!res.ok) {
-    console.error("Twilio Verify check failed", res.status, body);
-    throw new Error("Could not verify the code. Please try again.");
-  }
-  return body?.status === "approved";
-}
-
 async function findProfileByPhone(phone: string): Promise<{ id: string } | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
@@ -114,7 +64,7 @@ async function findClientRowByPhone(phone: string) {
 }
 
 /**
- * Validate (phone, role) is eligible to sign in, then send an OTP via Twilio Verify.
+ * Validate (phone, role) is eligible to sign in, then send an OTP via Pearl SMS.
  * - admin/employee: phone must be attached to a profile that has the given role.
  * - client: phone must belong to a profile with the client role, OR to a
  *   pre-created client record (auto-provisioned on first successful verify).
@@ -153,13 +103,7 @@ export const sendOtp = createServerFn({ method: "POST" })
       }
     }
 
-    if (process.env.NODE_ENV === "production") {
-      // Live app keeps its existing secure (HTTPS) provider; Pearl SMS is HTTP-only.
-      await twilioVerifyStart(data.phone);
-      return { ok: true };
-    }
-
-    // Local development: app-managed OTP delivered via Pearl SMS.
+    // App-managed OTP delivered via Pearl SMS.
     const store = await import("@/lib/otp/otp-store.server");
     const pearl = await import("@/lib/otp/pearl-sms.server");
     const { getRequestHeader } = await import("@tanstack/react-start/server");
@@ -167,16 +111,16 @@ export const sendOtp = createServerFn({ method: "POST" })
       getRequestHeader("cf-connecting-ip") ??
       getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ??
       null;
-    store.assertCanSend(data.phone, ip);
+    await store.assertCanSend(data.phone, ip);
     const otp = store.generateOtp();
     await store.storeOtp(data.phone, otp);
     try {
       await pearl.sendPearlOtp(data.phone, otp);
     } catch (e) {
-      store.discardOtp(data.phone);
+      await store.discardOtp(data.phone).catch(() => {});
       throw e;
     }
-    store.recordSend(data.phone, ip);
+    await store.recordSend(data.phone, ip);
     return { ok: true };
   });
 
@@ -189,10 +133,8 @@ export const sendOtp = createServerFn({ method: "POST" })
 export const verifyOtp = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => verifySchema.parse(data))
   .handler(async ({ data }) => {
-    const approved =
-      process.env.NODE_ENV === "production"
-        ? await twilioVerifyCheck(data.phone, data.code)
-        : await (await import("@/lib/otp/otp-store.server")).consumeOtp(data.phone, data.code);
+    const { consumeOtp } = await import("@/lib/otp/otp-store.server");
+    const approved = await consumeOtp(data.phone, data.code);
     if (!approved) throw new Error("Invalid or expired verification code.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
