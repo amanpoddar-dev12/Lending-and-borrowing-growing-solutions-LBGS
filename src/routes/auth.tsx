@@ -7,10 +7,11 @@ import { sendOtp, verifyOtp } from "@/lib/phone-auth.functions";
 import { demoSignIn } from "@/lib/demo-auth.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { VerificationCodeInput } from "@/components/auth/verification-code-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Shield, Briefcase, User, ArrowLeft } from "lucide-react";
+import { Shield, Briefcase, User, ArrowLeft, Smartphone, LockKeyhole } from "lucide-react";
 import { Spinner } from "@/components/global-loader";
 import { IN_PHONE_REGEX, IN_PHONE_MESSAGE, normalizeIndianPhone } from "@/lib/phone";
 
@@ -21,6 +22,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Sign in to your LBGS workspace with your mobile number." },
       { property: "og:title", content: "Sign in — LBGS" },
       { property: "og:description", content: "Sign in to your LBGS workspace with your mobile number." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -261,51 +264,59 @@ function AuthPage() {
                   </p>
                 </form>
               ) : (
-                <form onSubmit={onVerify} className="space-y-4">
-                  <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs">
-                    Code sent to <span className="font-medium text-foreground">{phone}</span>
+                <form onSubmit={onVerify} className="space-y-6">
+                  <div className="space-y-3 text-center">
+                    <div className="mx-auto grid size-12 place-items-center rounded-md bg-primary/10 text-primary">
+                      <Smartphone className="size-6" aria-hidden="true" />
+                    </div>
+                    <h2 className="font-display text-xl font-semibold">Verify your mobile</h2>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Enter the 6-digit code sent to<br />
+                      <span className="font-medium text-foreground">{phone}</span>
+                    </p>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="code">Verification code</Label>
-                    <Input
-                      id="code"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      required
+                  <div className="space-y-3">
+                    <Label htmlFor="code" className="sr-only">Verification code</Label>
+                    <VerificationCodeInput
                       value={code}
-                      onChange={(e) => setCode(e.target.value)}
+                      onChange={setCode}
+                      disabled={busy}
                     />
                   </div>
-                  <Button className="w-full" type="submit" disabled={busy}>
+                  <Button className="h-11 w-full" type="submit" disabled={busy || code.length !== 6}>
                     {busy ? (
                       <>
                         <Spinner className="mr-2" /> Verifying…
                       </>
                     ) : (
-                      "Sign in"
+                      <><LockKeyhole aria-hidden="true" /> Sign in</>
                     )}
                   </Button>
                   <div className="flex items-center justify-between text-xs">
-                    <button
+                    <Button
                       type="button"
-                      className="text-muted-foreground hover:text-foreground"
+                      variant="ghost"
+                      size="sm"
+                      className="px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
                       onClick={() => {
                         setStep("phone");
                         setCode("");
                       }}
                     >
                       Change phone
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className="text-primary hover:underline disabled:cursor-not-allowed disabled:text-muted-foreground disabled:no-underline"
+                      variant="link"
+                      size="sm"
+                      className="px-0 disabled:text-muted-foreground"
                       disabled={busy || cooldown > 0}
                       onClick={onResend}
                     >
                       {cooldown > 0
                         ? `Resend in ${Math.floor(cooldown / 60)}:${String(cooldown % 60).padStart(2, "0")}`
                         : "Resend code"}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               )}

@@ -11,6 +11,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "One platform for orders, payments, credit terms, and field-staff productivity." },
       { property: "og:title", content: "Lending and Borrowing Growing Solutions — B2B Trade & Credit Platform" },
       { property: "og:description", content: "One platform for orders, payments, credit terms, and field-staff productivity." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   beforeLoad: async ({ location }) => {
