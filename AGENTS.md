@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep login code entry in a browser-only enhancement component using the shared InputOTP control; SMS autofill must never submit or alter authentication verification.
