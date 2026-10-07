@@ -100,7 +100,11 @@ async function backend(): Promise<Backend> {
 }
 
 // ---------- public API ----------
+// Send limits are switched off while testing. Set to true to turn them back on.
+const RATE_LIMITS_ENABLED = false;
+
 export async function assertCanSend(phone: string, ip: string | null) {
+  if (!RATE_LIMITS_ENABLED) return;
   const b = await backend();
   const now = Date.now();
   const sends = await b.sendTimes(phone, now - HOUR_MS);
