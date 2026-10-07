@@ -1450,6 +1450,54 @@ export type Database = {
           },
         ]
       }
+      phone_otp_sends: {
+        Row: {
+          id: number
+          ip: string | null
+          phone: string
+          sent_at: string
+        }
+        Insert: {
+          id?: number
+          ip?: string | null
+          phone: string
+          sent_at?: string
+        }
+        Update: {
+          id?: number
+          ip?: string | null
+          phone?: string
+          sent_at?: string
+        }
+        Relationships: []
+      }
+      phone_otps: {
+        Row: {
+          attempts: number
+          created_at: string
+          expires_at: string
+          locked: boolean
+          otp_hash: string
+          phone: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          expires_at: string
+          locked?: boolean
+          otp_hash: string
+          phone: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          expires_at?: string
+          locked?: boolean
+          otp_hash?: string
+          phone?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           active: boolean
