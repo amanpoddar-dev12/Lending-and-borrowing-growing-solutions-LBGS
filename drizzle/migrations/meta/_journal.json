@@ -8,6 +8,13 @@
       "when": 1789474226667,
       "tag": "0000_decouple_invoices",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791354196961,
+      "tag": "0001_phone_otps",
+      "breakpoints": true
     }
   ]
 }
