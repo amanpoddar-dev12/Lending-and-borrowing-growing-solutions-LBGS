@@ -1,6 +1,6 @@
 import { PhoneDisplay } from "@/components/phone-display";
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,7 +9,8 @@ import { toast } from "sonner";
 
 import { getMe } from "@/lib/me.functions";
 import { getUserSettings, upsertUserSettings } from "@/lib/user-settings.functions";
-import { createAdminUser, listAdmins } from "@/lib/admin-users.functions";
+import { createAdminUser, listAdmins, setAdminDisabled } from "@/lib/admin-users.functions";
+import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/components/theme-provider";
 import { LANG_STORAGE_KEY } from "@/i18n";
 
@@ -152,6 +153,15 @@ function AdminsTab() {
   const list = useServerFn(listAdmins);
   const create = useServerFn(createAdminUser);
   const { data: admins, isLoading } = useQuery({ queryKey: qk.admins, queryFn: () => list() });
+  const setDisabled = useServerFn(setAdminDisabled);
+  const toggle = useMutation({
+    mutationFn: (v: { userId: string; disabled: boolean }) => setDisabled({ data: v }),
+    onSuccess: (_r, v) => {
+      toast.success(v.disabled ? "Admin disabled" : "Admin enabled");
+      qc.invalidateQueries({ queryKey: qk.admins });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Failed"),
+  });
 
   const [form, setForm] = useState({ name: "", phone: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -229,23 +239,39 @@ function AdminsTab() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
                   <TableHead>Since</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(admins ?? []).map((a) => (
                   <TableRow key={a.user_id}>
-                    <TableCell>{a.name}</TableCell>
-                    <TableCell>{a.email}</TableCell>
+                    <TableCell>{a.name}{a.is_self && <span className="ml-1 text-xs text-muted-foreground">(you)</span>}</TableCell>
                     <TableCell>{a.phone ? <PhoneDisplay phone={a.phone} canReveal /> : <span className="text-muted-foreground">—</span>}</TableCell>
                     <TableCell>{fmtDate(a.created_at)}</TableCell>
+                    <TableCell>{a.disabled ? <Badge variant="destructive">Disabled</Badge> : <Badge>Active</Badge>}</TableCell>
+                    <TableCell className="text-right">
+                      {!a.is_self && (
+                        <Button
+                          size="sm"
+                          variant={a.disabled ? "outline" : "destructive"}
+                          disabled={toggle.isPending}
+                          onClick={() => {
+                            if (!a.disabled && !confirm(`Disable ${a.name || "this admin"}? They will be signed out and unable to sign in.`)) return;
+                            toggle.mutate({ userId: a.user_id, disabled: !a.disabled });
+                          }}
+                        >
+                          {a.disabled ? "Enable" : "Disable"}
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
                 {(admins ?? []).length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-sm text-muted-foreground">No admins yet</TableCell>
+                    <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">No admins yet</TableCell>
                   </TableRow>
                 )}
               </TableBody>
