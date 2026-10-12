@@ -41,7 +41,7 @@ function Landing() {
             <div className="grid size-8 place-items-center rounded-md bg-primary text-[9px] font-bold tracking-tight text-primary-foreground">LBGS</div>
             <span className="font-display text-lg font-semibold">LBGS</span>
             <span className="h-6 w-px bg-border" aria-hidden />
-            <SanjivaniLogo className="h-9" />
+            <SanjivaniLogo height={36} />
           </div>
           <nav className="flex items-center gap-3">
             {authed ? (

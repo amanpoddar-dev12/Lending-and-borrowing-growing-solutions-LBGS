@@ -154,7 +154,7 @@ function AuthPage() {
               LBGS
             </div>
             <span className="h-8 w-px bg-border" aria-hidden />
-            <SanjivaniLogo className="h-12" />
+            <SanjivaniLogo height={48} />
           </div>
           <CardTitle className="font-display text-2xl">{t("auth.welcome")}</CardTitle>
           <CardDescription>

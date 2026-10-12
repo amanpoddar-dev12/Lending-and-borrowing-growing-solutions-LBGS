@@ -4,14 +4,13 @@ import { cn } from "@/lib/utils";
 export const SANJIVANI_LOGO_URL = sanjivani.url;
 
 /** Sanjivani co-brand mark shown beside the LBGS badge. */
-export function SanjivaniLogo({ className }: { className?: string }) {
+export function SanjivaniLogo({ className, height = 32 }: { className?: string; height?: number }) {
   return (
     <img
       src={sanjivani.url}
       alt="Sanjivani — since 1975"
-      width={480}
-      height={323}
-      className={cn("h-8 w-auto object-contain", className)}
+      style={{ height, width: "auto" }}
+      className={cn("object-contain", className)}
     />
   );
 }
