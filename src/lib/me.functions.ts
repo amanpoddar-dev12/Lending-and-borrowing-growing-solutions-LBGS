@@ -4,7 +4,9 @@ import { ALL_PERMISSIONS } from "./permissions";
 
 // Session/profile/role info for the current user. Called from the root subscriber
 // and from the role router.
-export const getMe = createServerFn({ method: "GET" })
+// POST (not GET) so the browser/CDN never caches the response — a cached GET
+// would serve the previous profile (e.g. old name) after re-login.
+export const getMe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
