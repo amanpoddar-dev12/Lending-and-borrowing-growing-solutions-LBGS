@@ -95,7 +95,7 @@ export async function downloadCsv(filename: string, rows: Record<string, unknown
   const sanj = await fetchAsBase64(SANJIVANI_LOGO_URL);
   if (!sanj) throw new Error("Unable to load the Sanjivani logo. Please try exporting again.");
   const sanjId = wb.addImage({ base64: sanj, extension: "png" });
-  ws.addImage(sanjId, { tl: { col: colCount - 1.3, row: 0.15 }, ext: { width: 110, height: 74 } });
+  ws.addImage(sanjId, { tl: { col: 1.3, row: 0.15 }, ext: { width: 110, height: 74 } });
   const watermarkId = wb.addImage({ base64: await logoWatermark([lbgs, sanj]), extension: "png" });
 
   // Table header on row 6.
