@@ -67,7 +67,7 @@ function Employees() {
           <h1 className="font-display text-xl font-semibold sm:text-2xl">Employees</h1>
           <p className="text-sm text-muted-foreground">Field staff, order limits, and commission.</p>
         </div>
-        <Button variant="outline" className="ml-auto" onClick={exportCsv}><Download className="mr-1 size-4" />CSV</Button>
+        <Button variant="outline" className="ml-auto" onClick={exportCsv}><Download className="mr-1 size-4" />Excel</Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button><Plus className="mr-1 size-4" />Add employee</Button>
