@@ -69,15 +69,6 @@ function Landing() {
             <Button asChild size="lg"><Link to="/auth">Sign in to your workspace</Link></Button>
             <Button asChild size="lg" variant="outline"><Link to="/auth" search={{ mode: "signup" }}>Create account</Link></Button>
           </div>
-          <div className="mt-6 rounded-md border border-border bg-card p-4 text-sm text-muted-foreground">
-            <strong className="text-foreground">Try the demo:</strong> visit{" "}
-            <a className="underline" href="/api/public/seed" target="_blank" rel="noreferrer">/api/public/seed</a>{" "}
-            once to load sample data, then sign in with{" "}
-            <code className="rounded bg-muted px-1">admin@demo.com</code>,{" "}
-            <code className="rounded bg-muted px-1">employee@demo.com</code>, or{" "}
-            <code className="rounded bg-muted px-1">client@demo.com</code> (password{" "}
-            <code className="rounded bg-muted px-1">Demo1234!</code>).
-          </div>
         </section>
 
         <section className="border-t border-border/60 bg-muted/30">
