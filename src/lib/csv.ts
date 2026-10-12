@@ -18,7 +18,8 @@ function lbgsBadgePng(): string {
   const c = document.createElement("canvas");
   c.width = 240;
   c.height = 240;
-  const ctx = c.getContext("2d")!;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("Unable to create the Excel logo");
   ctx.fillStyle = "#1e3a5f";
   ctx.beginPath();
   ctx.roundRect(0, 0, 240, 240, 36);
@@ -51,8 +52,23 @@ function prettyHeader(key: string) {
   return key.replace(/[_-]+/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
-function titleFromFilename(name: string) {
-  return prettyHeader(name.replace(/\.(csv|xlsx)$/i, "").replace(/\d{4}-\d{2}-\d{2}/g, "").trim()) || "Report";
+async function logoWatermark(logos: string[]): Promise<string> {
+  const canvas = document.createElement("canvas");
+  canvas.width = 960;
+  canvas.height = 480;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Unable to create the Excel watermark");
+  ctx.globalAlpha = 0.08;
+  await Promise.all(logos.map(async (source, index) => {
+    const image = new Image();
+    image.src = source;
+    await image.decode();
+    const scale = Math.min(280 / image.width, 200 / image.height);
+    const width = image.width * scale;
+    const height = image.height * scale;
+    ctx.drawImage(image, 240 + index * 480 - width / 2, 240 - height / 2, width, height);
+  }));
+  return canvas.toDataURL("image/png");
 }
 
 /**
@@ -69,33 +85,19 @@ export async function downloadCsv(filename: string, rows: Record<string, unknown
 
   const headers = rows.length ? Object.keys(rows[0]) : ["No data"];
   const colCount = Math.max(headers.length, 4);
-  const lastCol = ws.getColumn(colCount).letter;
 
-  // Header block: rows 1–4 reserved for logos + title.
+  // Logos only above the table; no report title, date, or record-count text.
   for (let r = 1; r <= 4; r++) ws.getRow(r).height = 22;
-  ws.mergeCells(`B1:${lastCol}1`);
-  ws.mergeCells(`B2:${lastCol}2`);
-  ws.mergeCells(`B3:${lastCol}3`);
-  const title = ws.getCell("B1");
-  title.value = "Lending and Borrowing Growing Solutions × Sanjivani";
-  title.font = { name: "Arial", size: 14, bold: true, color: { argb: "FF1E3A5F" } };
-  title.alignment = { horizontal: "center", vertical: "middle" };
-  const sub = ws.getCell("B2");
-  sub.value = titleFromFilename(filename);
-  sub.font = { name: "Arial", size: 12, bold: true };
-  sub.alignment = { horizontal: "center" };
-  const meta = ws.getCell("B3");
-  meta.value = `Generated ${new Date().toLocaleString("en-IN")} • ${rows.length} record(s)`;
-  meta.font = { name: "Arial", size: 9, italic: true, color: { argb: "FF666666" } };
-  meta.alignment = { horizontal: "center" };
 
-  const lbgsId = wb.addImage({ base64: lbgsBadgePng(), extension: "png" });
+  const lbgs = lbgsBadgePng();
+  const lbgsId = wb.addImage({ base64: lbgs, extension: "png" });
   ws.addImage(lbgsId, { tl: { col: 0.15, row: 0.15 }, ext: { width: 72, height: 72 } });
   const sanj = await fetchAsBase64(SANJIVANI_LOGO_URL);
-  if (sanj) {
-    const sanjId = wb.addImage({ base64: sanj, extension: "png" });
-    ws.addImage(sanjId, { tl: { col: colCount - 0.95, row: 0.15 }, ext: { width: 110, height: 74 } });
-  }
+  if (!sanj) throw new Error("Unable to load the Sanjivani logo. Please try exporting again.");
+  const sanjId = wb.addImage({ base64: sanj, extension: "png" });
+  ws.addImage(sanjId, { tl: { col: colCount - 1.3, row: 0.15 }, ext: { width: 110, height: 74 } });
+  const watermarkId = wb.addImage({ base64: await logoWatermark([lbgs, sanj]), extension: "png" });
+  ws.addBackgroundImage(watermarkId);
 
   // Table header on row 6.
   const headerRow = ws.getRow(6);
@@ -116,9 +118,8 @@ export async function downloadCsv(filename: string, rows: Record<string, unknown
       const cell = r.getCell(ci + 1);
       cell.value = v == null ? "" : (v as any);
       cell.font = { name: "Arial", size: 10 };
-      if (typeof v === "number") cell.numFmt = Number.isInteger(v) ? "#,##0" : "#,##0.00";
+      if (typeof v === "number") cell.numFmt = Number.isInteger(v) ? '#,##0;(#,##0);"-"' : '#,##0.00;(#,##0.00);"-"';
       cell.border = { bottom: { style: "hair", color: { argb: "FFDDDDDD" } } };
-      if (ri % 2 === 1) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF5F7FA" } };
     });
   });
 
