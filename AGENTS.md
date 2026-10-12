@@ -10,3 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Keep login code entry in a browser-only enhancement component using the shared InputOTP control; SMS autofill must never submit or alter authentication verification.
+- Self-service profile edits use authenticated server functions scoped to the caller's profile ID and existing RLS; never use privileged clients for ordinary name changes.
+- All flat-table Excel exports share the lazy-loaded exporter in src/lib/csv.ts so branding and worksheet formatting stay consistent across roles.

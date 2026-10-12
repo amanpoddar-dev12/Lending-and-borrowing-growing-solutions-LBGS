@@ -8,7 +8,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 
 import { getMe } from "@/lib/me.functions";
-import { getUserSettings, upsertUserSettings } from "@/lib/user-settings.functions";
+import { getUserSettings, upsertUserSettings, updateMyName } from "@/lib/user-settings.functions";
+import { Loader2, Save } from "lucide-react";
 import { createAdminUser, listAdmins, setAdminDisabled } from "@/lib/admin-users.functions";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/components/theme-provider";
@@ -30,9 +31,11 @@ export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — LBGS" },
-      { name: "description", content: "Manage appearance, language, and admin accounts." },
+      { name: "description", content: "Update your LBGS profile name, appearance, language, and admin accounts." },
       { property: "og:title", content: "Settings — LBGS" },
-      { property: "og:description", content: "Manage appearance, language, and admin accounts." },
+      { property: "og:description", content: "Update your LBGS profile name, appearance, language, and admin accounts." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -50,6 +53,7 @@ function SettingsPage() {
         <h1 className="font-display text-xl font-semibold sm:text-2xl">{t("settings.title")}</h1>
         <p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p>
       </div>
+      <ProfileName name={me.profile?.name ?? ""} />
       <Tabs defaultValue="appearance">
         <TabsList>
           <TabsTrigger value="appearance">{t("settings.tabs.appearance")}</TabsTrigger>
@@ -65,6 +69,52 @@ function SettingsPage() {
         )}
       </Tabs>
     </div>
+  );
+}
+
+function ProfileName({ name }: { name: string }) {
+  const { t } = useTranslation();
+  const qc = useQueryClient();
+  const save = useServerFn(updateMyName);
+  const [value, setValue] = useState(name);
+  const [error, setError] = useState("");
+  useEffect(() => { setValue(name); }, [name]);
+  const mutation = useMutation({
+    mutationFn: (next: string) => save({ data: { name: next } }),
+    onSuccess: async (profile) => {
+      qc.setQueryData<Awaited<ReturnType<typeof getMe>>>(qk.me, (current) =>
+        current && current.profile ? { ...current, profile: { ...current.profile, name: profile.name } } : current);
+      toast.success(t("settings.profile.saved", { defaultValue: "Name updated" }));
+      await qc.invalidateQueries();
+    },
+    onError: (e: Error) => setError(e.message),
+  });
+  return (
+    <section className="border-b pb-6">
+      <h2 className="mb-4 font-display text-lg font-semibold">{t("settings.profile.title", { defaultValue: "Your profile" })}</h2>
+      <form className="flex flex-col items-start gap-3 sm:flex-row sm:items-end" onSubmit={(e) => {
+        e.preventDefault();
+        setError("");
+        const next = value.trim();
+        if (next.length < 2 || next.length > 100) {
+          setError(t("settings.profile.invalid", { defaultValue: "Enter a name between 2 and 100 characters" }));
+          return;
+        }
+        mutation.mutate(next);
+      }}>
+        <div className="w-full space-y-1.5 sm:max-w-sm">
+          <Label htmlFor="profile-name">{t("settings.admins.name", { defaultValue: "Name" })}</Label>
+          <Input id="profile-name" autoComplete="name" maxLength={100} value={value} disabled={mutation.isPending}
+            aria-invalid={Boolean(error)} aria-describedby={error ? "profile-name-error" : undefined}
+            onChange={(e) => { setValue(e.target.value); setError(""); }} />
+        </div>
+        <Button type="submit" disabled={mutation.isPending || value.trim() === name.trim()}>
+          {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+          {mutation.isPending ? t("settings.profile.saving", { defaultValue: "Saving…" }) : t("settings.profile.save", { defaultValue: "Save name" })}
+        </Button>
+      </form>
+      {error && <p id="profile-name-error" role="alert" className="mt-2 text-sm text-destructive">{error}</p>}
+    </section>
   );
 }
 
