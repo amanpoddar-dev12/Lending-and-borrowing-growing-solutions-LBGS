@@ -1,3 +1,5 @@
 - [x] Add self-service name editing in Settings for admin, employee, and client.
 - [x] Simplify Excel exports and add both logos as watermarks.
 - [x] Verify saved names and a downloaded workbook (admin save/reload/restore and actual Customers export; all roles share self-scoped RLS).
+- [ ] Fix admin export paths that bypass logo branding and verify Audit log downloads.
+- [ ] Embed watermarks as visible worksheet images for spreadsheet-viewer compatibility.
