@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Shield, Briefcase, User, ArrowLeft, Smartphone, LockKeyhole } from "lucide-react";
 import { Spinner } from "@/components/global-loader";
 import { IN_PHONE_REGEX, IN_PHONE_MESSAGE, normalizeIndianPhone } from "@/lib/phone";
+import { SanjivaniLogo } from "@/components/brand-logos";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -148,8 +149,12 @@ function AuthPage() {
     <div className="grid min-h-screen place-items-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 grid size-10 place-items-center rounded-md bg-primary text-[10px] font-bold tracking-tight text-primary-foreground">
-            LBGS
+          <div className="mx-auto mb-2 flex items-center justify-center gap-3">
+            <div className="grid size-10 place-items-center rounded-md bg-primary text-[10px] font-bold tracking-tight text-primary-foreground">
+              LBGS
+            </div>
+            <span className="h-8 w-px bg-border" aria-hidden />
+            <SanjivaniLogo height={48} />
           </div>
           <CardTitle className="font-display text-2xl">{t("auth.welcome")}</CardTitle>
           <CardDescription>

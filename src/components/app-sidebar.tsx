@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchRouteData } from "@/lib/route-prefetch";
 import { usePermissions } from "@/hooks/use-permissions";
+import { SanjivaniLogo } from "@/components/brand-logos";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
@@ -92,10 +93,13 @@ export function AppSidebar({ role, name }: { role: Role; name: string }) {
         <div className="flex items-center gap-2 p-2">
           <div className="grid size-8 shrink-0 place-items-center rounded-md bg-sidebar-primary text-[9px] font-bold tracking-tight text-sidebar-primary-foreground">LBGS</div>
           {!collapsed && (
-            <div className="flex flex-col overflow-hidden">
-              <span className="truncate font-display text-sm font-semibold">LBGS</span>
-              <span className="truncate text-xs text-muted-foreground">{name}</span>
-            </div>
+            <>
+              <SanjivaniLogo height={30} className="shrink-0" />
+              <div className="flex min-w-0 flex-col overflow-hidden">
+                <span className="truncate font-display text-sm font-semibold">LBGS</span>
+                <span className="truncate text-xs text-muted-foreground">{name}</span>
+              </div>
+            </>
           )}
         </div>
       </SidebarHeader>

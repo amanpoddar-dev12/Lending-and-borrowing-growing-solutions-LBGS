@@ -123,7 +123,7 @@ function Customers() {
         </div>
         <div className="ml-auto flex w-full flex-wrap gap-2 sm:w-auto">
           <Input placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} className="w-full sm:w-56" />
-          <Button variant="outline" onClick={exportCsv} disabled={exporting}><Download className="mr-1 size-4" />{exporting ? "Exporting…" : "CSV"}</Button>
+          <Button variant="outline" onClick={exportCsv} disabled={exporting}><Download className="mr-1 size-4" />{exporting ? "Exporting…" : "Excel"}</Button>
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditing(null)}><Plus className="mr-1 size-4" />New client</Button>

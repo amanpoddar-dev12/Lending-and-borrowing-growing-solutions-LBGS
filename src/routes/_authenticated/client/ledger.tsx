@@ -74,7 +74,7 @@ function Ledger() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-0"><h1 className="font-display text-xl font-semibold sm:text-2xl">Ledger</h1><p className="text-sm text-muted-foreground">Running balance in chronological order.</p></div>
-        <Button size="sm" variant="outline" className="ml-auto" onClick={exportCsv}><Download className="mr-1 size-4" />CSV</Button>
+        <Button size="sm" variant="outline" className="ml-auto" onClick={exportCsv}><Download className="mr-1 size-4" />Excel</Button>
       </div>
       <Card><CardContent className="p-0">
         <div className="overflow-x-auto">

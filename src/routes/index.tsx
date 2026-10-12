@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { BarChart3, Users, ClipboardList, Wallet } from "lucide-react";
+import { SanjivaniLogo } from "@/components/brand-logos";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,6 +40,8 @@ function Landing() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="grid size-8 place-items-center rounded-md bg-primary text-[9px] font-bold tracking-tight text-primary-foreground">LBGS</div>
             <span className="font-display text-lg font-semibold">LBGS</span>
+            <span className="h-6 w-px bg-border" aria-hidden />
+            <SanjivaniLogo height={44} />
           </div>
           <nav className="flex items-center gap-3">
             {authed ? (
