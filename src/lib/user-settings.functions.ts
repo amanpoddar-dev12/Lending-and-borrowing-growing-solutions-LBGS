@@ -7,6 +7,22 @@ const upsertSchema = z.object({
   theme: z.enum(["light", "dark", "system"]).optional(),
 });
 
+export const updateMyName = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({
+    name: z.string().trim().min(2, "Enter at least 2 characters").max(100, "Use 100 characters or fewer"),
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: profile, error } = await context.supabase
+      .from("profiles")
+      .update({ name: data.name })
+      .eq("id", context.userId)
+      .select("name")
+      .single();
+    if (error) throw new Error(error.message);
+    return profile;
+  });
+
 export const getUserSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

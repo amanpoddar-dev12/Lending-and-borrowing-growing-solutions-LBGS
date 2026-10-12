@@ -1,0 +1,3 @@
+- [ ] Add self-service name editing in Settings for admin, employee, and client.
+- [ ] Simplify Excel exports and add both logos as watermarks.
+- [ ] Verify saved names and a downloaded workbook.
