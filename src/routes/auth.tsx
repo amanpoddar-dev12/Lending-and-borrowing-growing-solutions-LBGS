@@ -46,7 +46,6 @@ function AuthPage() {
   const navigate = useNavigate();
   const send = useServerFn(sendOtp);
   const verify = useServerFn(verifyOtp);
-  const demo = useServerFn(demoSignIn);
 
   const [role, setRole] = useState<Role | null>(null);
   const [step, setStep] = useState<Step>("phone");
