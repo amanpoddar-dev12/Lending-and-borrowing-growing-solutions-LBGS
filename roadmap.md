@@ -1,3 +1,3 @@
-- [ ] Add self-service name editing in Settings for admin, employee, and client.
-- [ ] Simplify Excel exports and add both logos as watermarks.
-- [ ] Verify saved names and a downloaded workbook.
+- [x] Add self-service name editing in Settings for admin, employee, and client.
+- [x] Simplify Excel exports and add both logos as watermarks.
+- [x] Verify saved names and a downloaded workbook (admin save/reload/restore and actual Customers export; all roles share self-scoped RLS).
