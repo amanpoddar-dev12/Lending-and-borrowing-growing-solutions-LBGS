@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Shield, Briefcase, User, ArrowLeft, Smartphone, LockKeyhole } from "lucide-react";
 import { Spinner } from "@/components/global-loader";
 import { IN_PHONE_REGEX, IN_PHONE_MESSAGE, normalizeIndianPhone } from "@/lib/phone";
+import { SanjivaniLogo } from "@/components/brand-logos";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
