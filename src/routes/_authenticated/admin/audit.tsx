@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Fragment, useMemo, useState } from "react";
 import { listAuditLogs } from "@/lib/reports.functions";
+import { downloadCsv } from "@/lib/csv";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,8 @@ export const Route = createFileRoute("/_authenticated/admin/audit")({
       { name: "description", content: "Enterprise audit trail for compliance, GST, and reconciliation." },
       { property: "og:title", content: "Audit log — LBGS" },
       { property: "og:description", content: "Enterprise audit trail for compliance, GST, and reconciliation." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -94,42 +98,24 @@ const kindClass = (k: string) => {
   }
 };
 
-function toCSV(rows: Row[]): string {
-  const headers = [
-    "Timestamp","User Name","User Email","User Phone","Role","Action","Module",
-    "Target Type","Record ID","Status","IP Address","User Agent","Remarks",
-    "Previous Value","Updated Value",
-  ];
-  const esc = (v: any) => {
-    const s = v == null ? "" : typeof v === "string" ? v : JSON.stringify(v);
-    return `"${s.replace(/"/g, '""')}"`;
-  };
-  const lines = rows.map((r) => [
-    new Date(r.created_at).toISOString(),
-    r.profiles?.name ?? "",
-    r.profiles?.email ?? "",
-    r.profiles?.phone ?? "",
-    r.actor_role ?? "",
-    r.action,
-    inferModule(r),
-    r.target_type ?? "",
-    r.target_id ?? "",
-    r.status ?? "success",
-    r.ip_address ?? "",
-    r.user_agent ?? "",
-    r.remarks ?? "",
-    r.old_value,
-    r.new_value,
-  ].map(esc).join(","));
-  return [headers.map((h) => `"${h}"`).join(","), ...lines].join("\n");
-}
-
-function download(name: string, csv: string) {
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = name; a.click();
-  URL.revokeObjectURL(url);
+function exportRows(rows: Row[]) {
+  return rows.map((r) => ({
+    Timestamp: new Date(r.created_at).toISOString(),
+    "User Name": r.profiles?.name ?? "",
+    "User Email": r.profiles?.email ?? "",
+    "User Phone": r.profiles?.phone ?? "",
+    Role: r.actor_role ?? "",
+    Action: r.action,
+    Module: inferModule(r),
+    "Target Type": r.target_type ?? "",
+    "Record ID": r.target_id ?? "",
+    Status: r.status ?? "success",
+    "IP Address": r.ip_address ?? "",
+    "User Agent": r.user_agent ?? "",
+    Remarks: r.remarks ?? "",
+    "Previous Value": r.old_value == null ? "" : JSON.stringify(r.old_value),
+    "Updated Value": r.new_value == null ? "" : JSON.stringify(r.new_value),
+  }));
 }
 
 const PAGE_SIZES = [25, 50, 100, 200];
@@ -156,6 +142,7 @@ function Audit() {
   const [pageSize, setPageSize] = useState<number>(50);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [showFilters, setShowFilters] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const moduleOptions = useMemo(() => {
     const s = new Set<string>();
@@ -210,9 +197,15 @@ function Audit() {
     setStatus("all"); setKind("all"); setPage(1);
   };
 
-  const exportCsv = (all: boolean) => {
-    const src = all ? rows : filtered;
-    download(`audit-log-${new Date().toISOString().slice(0, 10)}.csv`, toCSV(src));
+  const exportExcel = async (all: boolean) => {
+    setExporting(true);
+    try {
+      await downloadCsv(`audit-log-${new Date().toISOString().slice(0, 10)}.xlsx`, exportRows(all ? rows : filtered));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to export Excel. Please try again.");
+    } finally {
+      setExporting(false);
+    }
   };
 
   const activeFilterCount = [q, from, to,
@@ -232,11 +225,11 @@ function Audit() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => exportCsv(false)} className="gap-2">
-            <Download className="h-4 w-4" /> Export filtered
+          <Button variant="outline" size="sm" disabled={exporting || isLoading} onClick={() => exportExcel(false)} className="gap-2">
+            <Download className="h-4 w-4" /> {exporting ? "Exporting…" : "Excel filtered"}
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => exportCsv(true)} className="gap-2">
-            <Download className="h-4 w-4" /> Export all
+          <Button variant="secondary" size="sm" disabled={exporting || isLoading} onClick={() => exportExcel(true)} className="gap-2">
+            <Download className="h-4 w-4" /> {exporting ? "Exporting…" : "Excel all"}
           </Button>
         </div>
       </div>

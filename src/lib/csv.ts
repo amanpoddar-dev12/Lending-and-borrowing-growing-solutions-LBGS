@@ -58,7 +58,7 @@ async function logoWatermark(logos: string[]): Promise<string> {
   canvas.height = 480;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Unable to create the Excel watermark");
-  ctx.globalAlpha = 0.08;
+  ctx.globalAlpha = 0.12;
   await Promise.all(logos.map(async (source, index) => {
     const image = new Image();
     image.src = source;
@@ -95,9 +95,8 @@ export async function downloadCsv(filename: string, rows: Record<string, unknown
   const sanj = await fetchAsBase64(SANJIVANI_LOGO_URL);
   if (!sanj) throw new Error("Unable to load the Sanjivani logo. Please try exporting again.");
   const sanjId = wb.addImage({ base64: sanj, extension: "png" });
-  ws.addImage(sanjId, { tl: { col: colCount - 1.3, row: 0.15 }, ext: { width: 110, height: 74 } });
+  ws.addImage(sanjId, { tl: { col: 1.3, row: 0.15 }, ext: { width: 110, height: 74 } });
   const watermarkId = wb.addImage({ base64: await logoWatermark([lbgs, sanj]), extension: "png" });
-  ws.addBackgroundImage(watermarkId);
 
   // Table header on row 6.
   const headerRow = ws.getRow(6);
@@ -131,6 +130,21 @@ export async function downloadCsv(filename: string, rows: Record<string, unknown
     ws.getColumn(i).width = Math.min(Math.max(w + 2, i === 1 || i === colCount ? 16 : 10), 50);
   }
   if (rows.length) ws.autoFilter = { from: { row: 6, column: 1 }, to: { row: 6, column: headers.length } };
+
+  // Embed regular worksheet drawings: sheet backgrounds are ignored by many
+  // viewers and never print. Transparent PNGs keep the underlying data readable.
+  const sheetWidth = Array.from({ length: colCount }, (_, i) =>
+    (ws.getColumn(i + 1).width ?? 10) * 7 + 5).reduce((a, b) => a + b, 0);
+  const watermarkWidth = Math.min(sheetWidth - 24, 720);
+  const watermarkHeight = watermarkWidth / 2;
+  const watermarkRows = Math.ceil(watermarkHeight / 20) + 3;
+  for (let row = 6; row < Math.max(rows.length + 6, 7); row += watermarkRows) {
+    ws.addImage(watermarkId, {
+      tl: { col: 0.15, row },
+      ext: { width: watermarkWidth, height: watermarkHeight },
+      editAs: "absolute",
+    });
+  }
 
   const buf = await wb.xlsx.writeBuffer();
   const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
