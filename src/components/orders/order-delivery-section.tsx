@@ -103,6 +103,7 @@ export function OrderDeliverySection({ order, role }: { order: any; role: "admin
 
   const pay = useMutation({
     mutationFn: async () => {
+      if (!file) throw new Error("Please attach a payment screenshot or proof before submitting");
       let proof_path: string | null = null;
       if (file) {
         setUploading(true);
@@ -281,14 +282,14 @@ export function OrderDeliverySection({ order, role }: { order: any; role: "admin
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="pay-proof">Payment screenshot / proof</Label>
-              <Input id="pay-proof" type="file" accept="image/*,application/pdf"
+              <Label htmlFor="pay-proof">Payment screenshot / proof <span className="text-destructive">*</span></Label>
+              <Input id="pay-proof" type="file" accept="image/*,application/pdf" required
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </div>
             <Textarea rows={2} placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
             <Button
               className="w-full"
-              disabled={pay.isPending || uploading || !Number(amount)}
+              disabled={pay.isPending || uploading || !Number(amount) || !file}
               onClick={() => pay.mutate()}
             >
               {(pay.isPending || uploading) && <Loader2 className="mr-1 size-4 animate-spin" />}

@@ -12,7 +12,7 @@ const submitSchema = z.object({
   amount: z.number().positive(),
   method: z.enum(PAYMENT_METHODS),
   reference_id: z.string().trim().max(120).optional().nullable(),
-  proof_path: z.string().trim().max(500).optional().nullable(),
+  proof_path: z.string().trim().min(1, "Payment proof is required").max(500),
   note: z.string().trim().max(1000).optional().nullable(),
 });
 
