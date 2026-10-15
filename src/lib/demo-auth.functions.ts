@@ -77,6 +77,37 @@ export const demoSignIn = createServerFn({ method: "POST" })
       .update({ name: DEMO_NAMES[role], phone: demoPhone })
       .eq("id", userId);
 
+    if (role === "employee") {
+      // Give the demo employee an employee profile and link the demo client
+      // to them so the admin side shows an assigned client.
+      await supabaseAdmin
+        .from("employee_profiles")
+        .upsert({ id: userId, territory: "Demo Territory" }, { onConflict: "id" });
+
+      const { data: list2 } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      const clientUser = list2?.users.find((u) => u.email === DEMO_EMAILS.client);
+      if (clientUser) {
+        const { data: c } = await supabaseAdmin
+          .from("clients")
+          .select("id")
+          .eq("user_id", clientUser.id)
+          .maybeSingle();
+        if (c?.id) {
+          const { data: link } = await supabaseAdmin
+            .from("client_employees")
+            .select("client_id")
+            .eq("client_id", c.id)
+            .eq("employee_id", userId)
+            .maybeSingle();
+          if (!link) {
+            await supabaseAdmin
+              .from("client_employees")
+              .insert({ client_id: c.id, employee_id: userId });
+          }
+        }
+      }
+    }
+
     if (role === "client") {
       const { data: c } = await supabaseAdmin
         .from("clients")
