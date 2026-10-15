@@ -107,6 +107,24 @@ function AuthPage() {
     }
   }
 
+  async function onDemoSignIn(r: Role) {
+    setBusy(true);
+    try {
+      const res = await demo({ data: { role: r } });
+      const { error } = await supabase.auth.setSession({
+        access_token: res.access_token,
+        refresh_token: res.refresh_token,
+      });
+      if (error) throw error;
+      toast.success(t("auth.signedIn"));
+      navigate({ to: "/dashboard" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Demo sign-in failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onVerify(e: React.FormEvent) {
     e.preventDefault();
     if (!role) return;
