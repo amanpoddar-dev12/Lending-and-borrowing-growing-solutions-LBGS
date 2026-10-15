@@ -196,6 +196,31 @@ function AuthPage() {
                   </button>
                 );
               })}
+              <div className="pt-2">
+                <div className="relative mb-3">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-card px-2 text-muted-foreground">Or try a demo account</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {(Object.keys(ROLE_META) as Role[]).map((r) => (
+                    <Button
+                      key={r}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={busy}
+                      className="capitalize"
+                      onClick={() => onDemoSignIn(r)}
+                    >
+                      {r}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
             <>
