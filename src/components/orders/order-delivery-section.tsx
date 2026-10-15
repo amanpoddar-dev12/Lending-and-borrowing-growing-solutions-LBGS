@@ -103,6 +103,7 @@ export function OrderDeliverySection({ order, role }: { order: any; role: "admin
 
   const pay = useMutation({
     mutationFn: async () => {
+      if (!file) throw new Error("Please attach a payment screenshot or proof before submitting");
       let proof_path: string | null = null;
       if (file) {
         setUploading(true);
