@@ -38,7 +38,7 @@ const STEP_LABELS: Record<string, string> = {
   out_for_delivery: "Dispatched",
   completed: "Delivered",
   payment_submitted: "Verification",
-  paid: "Paid",
+  paid: "Completed",
 };
 /** Orders created under the pre-delivery payment flow still map onto the bar. */
 const LEGACY_STEP: Record<string, (typeof STEPS)[number]> = {

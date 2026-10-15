@@ -166,7 +166,7 @@
     "declined": "Declined",
     "change_requested": "Change requested",
     "invoiced": "Invoiced",
-    "paid": "Payment completed",
+    "paid": "Completed",
     "payment_pending": "Payment due",
     "payment_submitted": "Payment under verification",
     "payment_verified": "Payment verified",
