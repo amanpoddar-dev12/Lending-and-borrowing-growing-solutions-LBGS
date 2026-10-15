@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { sendOtp, verifyOtp } from "@/lib/phone-auth.functions";
+import { demoSignIn } from "@/lib/demo-auth.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { VerificationCodeInput } from "@/components/auth/verification-code-input";
@@ -46,6 +47,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const send = useServerFn(sendOtp);
   const verify = useServerFn(verifyOtp);
+  const demo = useServerFn(demoSignIn);
 
   const [role, setRole] = useState<Role | null>(null);
   const [step, setStep] = useState<Step>("phone");
@@ -100,6 +102,24 @@ function AuthPage() {
     } catch (err: any) {
       console.log(err);
       toast.error(err?.message ?? "Failed to resend");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onDemoSignIn(r: Role) {
+    setBusy(true);
+    try {
+      const res = await demo({ data: { role: r } });
+      const { error } = await supabase.auth.setSession({
+        access_token: res.access_token,
+        refresh_token: res.refresh_token,
+      });
+      if (error) throw error;
+      toast.success(t("auth.signedIn"));
+      navigate({ to: "/dashboard" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Demo sign-in failed");
     } finally {
       setBusy(false);
     }
@@ -176,6 +196,31 @@ function AuthPage() {
                   </button>
                 );
               })}
+              <div className="pt-2">
+                <div className="relative mb-3">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-card px-2 text-muted-foreground">Or try a demo account</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {(Object.keys(ROLE_META) as Role[]).map((r) => (
+                    <Button
+                      key={r}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={busy}
+                      className="capitalize"
+                      onClick={() => onDemoSignIn(r)}
+                    >
+                      {r}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
             <>
