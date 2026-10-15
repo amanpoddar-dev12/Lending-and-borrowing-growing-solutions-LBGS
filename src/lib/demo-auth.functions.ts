@@ -129,6 +129,28 @@ export const demoSignIn = createServerFn({ method: "POST" })
           .insert({ user_id: userId, ...clientValues });
         if (cErr) throw new Error(cErr.message);
       }
+
+      // Link the demo client to the demo employee if that account exists.
+      const { data: list3 } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      const empUser = list3?.users.find((u) => u.email === DEMO_EMAILS.employee);
+      const { data: clientRow } = await supabaseAdmin
+        .from("clients")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (empUser && clientRow?.id) {
+        const { data: link } = await supabaseAdmin
+          .from("client_employees")
+          .select("client_id")
+          .eq("client_id", clientRow.id)
+          .eq("employee_id", empUser.id)
+          .maybeSingle();
+        if (!link) {
+          await supabaseAdmin
+            .from("client_employees")
+            .insert({ client_id: clientRow.id, employee_id: empUser.id });
+        }
+      }
     } else {
       // Remove any stray client record created while the account defaulted to client.
       await supabaseAdmin.from("clients").delete().eq("user_id", userId);
