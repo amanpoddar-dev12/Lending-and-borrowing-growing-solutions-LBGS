@@ -57,17 +57,50 @@ export const demoSignIn = createServerFn({ method: "POST" })
       userId = created.user.id;
     }
 
-    // Ensure the requested role is assigned (handle_new_user defaults to client).
+    // Ensure exactly the requested role (handle_new_user defaults to client).
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", userId).neq("role", role);
     const { data: roleRows } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
-    const roles = new Set((roleRows ?? []).map((r: any) => r.role));
-    if (!roles.has(role)) {
+    if (!(roleRows ?? []).length) {
       const { error: roleErr } = await supabaseAdmin
         .from("user_roles")
         .insert({ user_id: userId, role });
       if (roleErr) throw new Error(roleErr.message);
+    }
+
+    // Pre-fill the profile so the "Complete your profile" screen is skipped.
+    const demoPhone = { admin: "+919000000001", employee: "+919000000002", client: "+919000000003" }[role];
+    await supabaseAdmin
+      .from("profiles")
+      .update({ name: DEMO_NAMES[role], phone: demoPhone })
+      .eq("id", userId);
+
+    if (role === "client") {
+      const { data: c } = await supabaseAdmin
+        .from("clients")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const clientValues = {
+        business_name: "Demo Traders Pvt Ltd",
+        gst_number: "27ABCDE1234F1Z5",
+        contact_person: DEMO_NAMES.client,
+        email,
+        phone: demoPhone,
+      };
+      if (c?.id) {
+        await supabaseAdmin.from("clients").update(clientValues).eq("id", c.id);
+      } else {
+        const { error: cErr } = await supabaseAdmin
+          .from("clients")
+          .insert({ user_id: userId, ...clientValues });
+        if (cErr) throw new Error(cErr.message);
+      }
+    } else {
+      // Remove any stray client record created while the account defaulted to client.
+      await supabaseAdmin.from("clients").delete().eq("user_id", userId);
     }
 
     // Rotate to a one-shot password and sign in to mint a session.
