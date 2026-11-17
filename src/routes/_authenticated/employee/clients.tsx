@@ -43,6 +43,8 @@ export const Route = createFileRoute("/_authenticated/employee/clients")({
       { name: "description", content: "Clients assigned to you." },
       { property: "og:title", content: "My clients — LBGS" },
       { property: "og:description", content: "Clients assigned to you." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -77,7 +79,7 @@ function EmpClients() {
   if (form.business_name.trim().length < 2) errors.push("Business name is required");
   if (!PHONE_REGEX.test(form.phone.trim())) errors.push("Phone must be in E.164 format, e.g. +919876543210");
   if (!GST_REGEX.test(form.gst_number.trim().toUpperCase())) errors.push("Enter a valid 15-character GST number");
-  if (!PAN_REGEX.test(form.pan.trim().toUpperCase())) errors.push("Enter a valid PAN, e.g. ABCDE1234F");
+  if (form.pan.trim() && !PAN_REGEX.test(form.pan.trim().toUpperCase())) errors.push("Enter a valid PAN, e.g. ABCDE1234F");
   if (!Number.isFinite(limit) || limit < MIN_CREDIT_LIMIT)
     errors.push(`Credit limit must be at least ${inr(MIN_CREDIT_LIMIT)}`);
 
@@ -186,7 +188,7 @@ function EmpClients() {
                     onChange={(e) => setForm((f) => ({ ...f, gst_number: e.target.value.toUpperCase() }))}
                   />
                 </Field>
-                <Field label="PAN number *">
+                <Field label="PAN number (optional)">
                   <Input
                     placeholder="ABCDE1234F"
                     value={form.pan}

@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { requirePermission } from "./permission-guard";
+import { optionalPanSchema } from "./client-pan";
+export { PAN_REGEX } from "./client-pan";
 
 const isAdmin = async (ctx: { supabase: any; userId: string }) => {
   const { data } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
@@ -48,7 +50,6 @@ export const HIGH_CREDIT_THRESHOLD = 500000;
 export const CREDIT_TERMS_OPTIONS = [7, 15, 30] as const;
 
 export const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/;
-export const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 export const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 
 const clientSchema = z.object({
@@ -62,11 +63,7 @@ const clientSchema = z.object({
     .trim()
     .transform((s) => s.toUpperCase())
     .refine((s) => GST_REGEX.test(s), "Enter a valid 15-character GST number"),
-  pan: z
-    .string()
-    .trim()
-    .transform((s) => s.toUpperCase())
-    .refine((s) => PAN_REGEX.test(s), "Enter a valid PAN, e.g. ABCDE1234F"),
+  pan: optionalPanSchema,
   address: z.string().trim().max(500).optional().nullable(),
   latitude: z.number().min(-90).max(90).optional().nullable(),
   longitude: z.number().min(-180).max(180).optional().nullable(),

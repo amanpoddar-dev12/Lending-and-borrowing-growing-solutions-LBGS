@@ -29,6 +29,13 @@
       "when": 1792078379519,
       "tag": "0003_require_payment_proof",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794936134625,
+      "tag": "0004_optional_client_pan",
+      "breakpoints": true
     }
   ]
 }

@@ -43,6 +43,8 @@ export const Route = createFileRoute("/_authenticated/admin/customers")({
       { name: "description", content: "Manage clients, KYC, credit limits, and credit terms." },
       { property: "og:title", content: "Customers — LBGS" },
       { property: "og:description", content: "Manage clients, KYC, credit limits, and credit terms." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -261,7 +263,7 @@ function ClientForm({ editing, onDone, upsert }: { editing: any; onDone: () => v
   if (v.business_name.trim().length < 2) errors.push("Business name is required");
   if (!PHONE_REGEX.test(v.phone.trim())) errors.push("Phone must be in E.164 format, e.g. +919876543210");
   if (!GST_REGEX.test(v.gst_number.trim().toUpperCase())) errors.push("Enter a valid 15-character GST number");
-  if (!PAN_REGEX.test(v.pan.trim().toUpperCase())) errors.push("Enter a valid PAN, e.g. ABCDE1234F");
+  if (v.pan.trim() && !PAN_REGEX.test(v.pan.trim().toUpperCase())) errors.push("Enter a valid PAN, e.g. ABCDE1234F");
   if (!Number.isFinite(limit) || limit < MIN_CREDIT_LIMIT)
     errors.push(`Credit limit must be at least ${inr(MIN_CREDIT_LIMIT)}`);
 
@@ -304,7 +306,7 @@ function ClientForm({ editing, onDone, upsert }: { editing: any; onDone: () => v
         <Field label="Email"><Input type="email" value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} /></Field>
         <Field label="Phone" required><Input placeholder="+919876543210" value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} /></Field>
         <Field label="GST number" required><Input placeholder="27ABCDE1234F1Z5" value={v.gst_number} onChange={(e) => setV({ ...v, gst_number: e.target.value.toUpperCase() })} /></Field>
-        <Field label="PAN number" required><Input placeholder="ABCDE1234F" value={v.pan} onChange={(e) => setV({ ...v, pan: e.target.value.toUpperCase() })} /></Field>
+        <Field label="PAN number (optional)"><Input placeholder="ABCDE1234F" value={v.pan} onChange={(e) => setV({ ...v, pan: e.target.value.toUpperCase() })} /></Field>
         <Field label="Address" full>
           <div className="flex flex-wrap items-center gap-2">
             <Input
